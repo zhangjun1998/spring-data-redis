@@ -116,6 +116,19 @@ public class Expiration {
 	}
 
 	/**
+	 * Obtain an {@link Expiration} that indicates to keep the existing one. Eg. when sending a {@code SET} command.
+	 * <p />
+	 * <strong>NOTE: </strong>Please follow the documentation of the individual commands to see if {@link #keepTTL()} is
+	 * applicable.
+	 *
+	 * @return never {@literal null}.
+	 * @since 2.4
+	 */
+	public static Expiration keepTTL() {
+		return KeepTTL.INSTANCE;
+	}
+
+	/**
 	 * Creates new {@link Expiration} with the provided {@link TimeUnit}. Greater units than {@link TimeUnit#SECONDS} are
 	 * converted to {@link TimeUnit#SECONDS}. Units smaller than {@link TimeUnit#MILLISECONDS} are converted to
 	 * {@link TimeUnit#MILLISECONDS} and can lose precision since {@link TimeUnit#MILLISECONDS} is the smallest
@@ -174,5 +187,23 @@ public class Expiration {
 	 */
 	public boolean isPersistent() {
 		return expirationTime == -1;
+	}
+
+	public boolean isKeepTTL() {
+		return false;
+	}
+
+	public static class KeepTTL extends Expiration {
+
+		static KeepTTL INSTANCE = new KeepTTL();
+
+		private KeepTTL() {
+			super(-2, null);
+		}
+
+		@Override
+		public boolean isKeepTTL() {
+			return true;
+		}
 	}
 }
