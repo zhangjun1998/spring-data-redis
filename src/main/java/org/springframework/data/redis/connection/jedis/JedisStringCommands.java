@@ -166,7 +166,7 @@ class JedisStringCommands implements RedisStringCommands {
 		Assert.notNull(value, "Value must not be null!");
 		Assert.notNull(expiration, "Expiration must not be null!");
 		Assert.notNull(option, "Option must not be null!");
-		Assert.isTrue(keepTtl, "KEEPTTL is currently not supported in jedis!");
+		Assert.isTrue(!keepTtl, "KEEPTTL is currently not supported in jedis!");
 
 		SetParams params = JedisConverters.toSetCommandExPxArgument(expiration,
 				JedisConverters.toSetCommandNxXxArgument(option));
