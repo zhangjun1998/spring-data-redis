@@ -29,22 +29,23 @@ import org.junit.platform.commons.util.AnnotationUtils;
 import org.springframework.data.redis.test.extension.LettuceExtension;
 
 /**
- * {@link ExecutionCondition} for {@link EnabledOnVersionCondition @EnabledOnVersion}.
+ * {@link ExecutionCondition} for {@link EnabledOnRedisVersionCondition @EnabledOnVersion}.
  *
  * @author Mark Paluch
- * @see EnabledOnVersionCondition
+ * @see EnabledOnRedisVersionCondition
  */
-class EnabledOnVersionCondition implements ExecutionCondition {
+class EnabledOnRedisVersionCondition implements ExecutionCondition {
 
 	private static final ConditionEvaluationResult ENABLED_BY_DEFAULT = enabled("@EnabledOnVersion is not present");
 	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace
-			.create(EnabledOnVersionCondition.class);
+			.create(EnabledOnRedisVersionCondition.class);
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 
-		Optional<EnabledOnVersion> optional = AnnotationUtils.findAnnotation(context.getElement(), EnabledOnVersion.class);
+		Optional<EnabledOnRedisVersion> optional = AnnotationUtils.findAnnotation(context.getElement(),
+				EnabledOnRedisVersion.class);
 
 		if (optional.isPresent()) {
 

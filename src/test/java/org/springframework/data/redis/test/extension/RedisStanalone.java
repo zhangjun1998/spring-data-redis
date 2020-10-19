@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.redis.test.condition;
+package org.springframework.data.redis.test.extension;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,25 +22,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.data.redis.SettingsUtils;
 
 /**
- * {@code @EnabledOnSentinelAvailable} is used to signal that the annotated test class or test method is only
- * <em>enabled</em> if Redis Sentinel is running.
- * <p/>
- * When applied at the class level, all test methods within that class will be enabled.
+ * {@code @RedisStanalone} is used to qualify a connection resource to point to Redis Standalone.
  *
  * @author Mark Paluch
+ * @see SettingsUtils#getPort()
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-@ExtendWith(EnabledOnSentinelCondition.class)
-public @interface EnabledOnSentinelAvailable {
-
-	/**
-	 * Sentinel port number.
-	 */
-	int value() default 26379;
+public @interface RedisStanalone {
 }

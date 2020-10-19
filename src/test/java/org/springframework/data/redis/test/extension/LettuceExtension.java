@@ -51,6 +51,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 import org.springframework.core.ResolvableType;
 import org.springframework.data.redis.SettingsUtils;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.util.Lazy;
 
 /**
@@ -243,7 +244,7 @@ public class LettuceExtension implements ParameterResolver, AfterAllCallback, Af
 					RedisURI.create(SettingsUtils.getHost(), SettingsUtils.getPort()));
 			client.setOptions(DEFAULT_OPTIONS);
 
-			ShutdownQueue.INSTANCE.register(() -> client.shutdown(0, 0, TimeUnit.MILLISECONDS));
+			ShutdownQueue.register(() -> client.shutdown(0, 0, TimeUnit.MILLISECONDS));
 			return client;
 		});
 
@@ -262,7 +263,7 @@ public class LettuceExtension implements ParameterResolver, AfterAllCallback, Af
 					RedisURI.create(SettingsUtils.getHost(), SettingsUtils.getClusterPort()));
 			client.setOptions(DEFAULT_OPTIONS);
 
-			ShutdownQueue.INSTANCE.register(() -> client.shutdown(0, 0, TimeUnit.MILLISECONDS));
+			ShutdownQueue.register(() -> client.shutdown(0, 0, TimeUnit.MILLISECONDS));
 			return client;
 		});
 

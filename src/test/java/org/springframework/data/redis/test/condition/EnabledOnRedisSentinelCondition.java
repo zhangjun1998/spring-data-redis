@@ -30,12 +30,12 @@ import org.junit.platform.commons.util.AnnotationUtils;
 import org.springframework.data.redis.SettingsUtils;
 
 /**
- * {@link ExecutionCondition} for {@link EnabledOnSentinelCondition @EnabledOnSentinelAvailable}.
+ * {@link ExecutionCondition} for {@link EnabledOnRedisSentinelCondition @EnabledOnRedisSentinelAvailable}.
  *
  * @author Mark Paluch
- * @see EnabledOnSentinelCondition
+ * @see EnabledOnRedisSentinelCondition
  */
-class EnabledOnSentinelCondition implements ExecutionCondition {
+class EnabledOnRedisSentinelCondition implements ExecutionCondition {
 
 	private static final ConditionEvaluationResult ENABLED_BY_DEFAULT = enabled(
 			"@EnabledOnSentinelAvailable is not present");
@@ -44,12 +44,12 @@ class EnabledOnSentinelCondition implements ExecutionCondition {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 
-		Optional<EnabledOnSentinelAvailable> optional = AnnotationUtils.findAnnotation(context.getElement(),
-				EnabledOnSentinelAvailable.class);
+		Optional<EnabledOnRedisSentinelAvailable> optional = AnnotationUtils.findAnnotation(context.getElement(),
+				EnabledOnRedisSentinelAvailable.class);
 
 		if (optional.isPresent()) {
 
-			EnabledOnSentinelAvailable annotation = optional.get();
+			EnabledOnRedisSentinelAvailable annotation = optional.get();
 			try (Socket socket = new Socket()) {
 				socket.connect(new InetSocketAddress(SettingsUtils.getHost(), annotation.value()), 100);
 

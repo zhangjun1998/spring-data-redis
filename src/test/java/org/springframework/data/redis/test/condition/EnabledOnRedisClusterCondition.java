@@ -30,35 +30,32 @@ import org.junit.platform.commons.util.AnnotationUtils;
 import org.springframework.data.redis.SettingsUtils;
 
 /**
- * {@link ExecutionCondition} for {@link EnabledOnRedisCondition @EnabledOnRedisAvailable}.
+ * {@link ExecutionCondition} for {@link EnabledOnRedisClusterCondition @EnabledOnRedisClusterAvailable}.
  *
  * @author Mark Paluch
- * @see EnabledOnRedisCondition
+ * @see EnabledOnRedisClusterCondition
  */
-class EnabledOnRedisCondition implements ExecutionCondition {
+class EnabledOnRedisClusterCondition implements ExecutionCondition {
 
 	private static final ConditionEvaluationResult ENABLED_BY_DEFAULT = enabled(
-			"@EnabledOnRedisAvailable is not present");
+			"@EnabledOnClusterAvailable is not present");
 
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 
-		Optional<EnabledOnRedisAvailable> optional = AnnotationUtils.findAnnotation(context.getElement(),
-				EnabledOnRedisAvailable.class);
+		Optional<EnabledOnRedisClusterAvailable> optional = AnnotationUtils.findAnnotation(context.getElement(),
+				EnabledOnRedisClusterAvailable.class);
 
 		if (optional.isPresent()) {
 
-			EnabledOnRedisAvailable annotation = optional.get();
-
 			try (Socket socket = new Socket()) {
-				socket.connect(new InetSocketAddress(SettingsUtils.getHost(), annotation.value()), 100);
+				socket.connect(new InetSocketAddress(SettingsUtils.getHost(), SettingsUtils.getClusterPort()), 100);
 
-				return enabled(
-						String.format("Connection successful to Redis at %s:%d", SettingsUtils.getHost(), annotation.value()));
+				return enabled(String.format("Connection successful to Redis Cluster at %s:%d", SettingsUtils.getHost(),
+						SettingsUtils.getClusterPort()));
 			} catch (IOException e) {
-				return disabled(
-						String.format("Cannot connect to Redis at %s:%d (%s)", SettingsUtils.getHost(), annotation.value(), e));
+				return disabled(String.format("Cannot connect to Redis Cluster at %s:%d (%s)", SettingsUtils.getHost(),
+						SettingsUtils.getClusterPort(), e));
 			}
 		}
 

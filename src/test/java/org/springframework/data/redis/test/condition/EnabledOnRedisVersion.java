@@ -25,8 +25,8 @@ import java.lang.annotation.Target;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * {@code @EnabledOnRedisAvailable} is used to signal that the annotated test class or test method is only
- * <em>enabled</em> if Redis is running at {@link #value() port}.
+ * {@code @EnabledOnRedisVersion} is used to signal that the annotated test class or test method is only
+ * <em>enabled</em> if Redis has at least the specified {@link #value() version number}.
  * <p/>
  * When applied at the class level, all test methods within that class will be enabled.
  *
@@ -36,11 +36,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-@ExtendWith(EnabledOnRedisAvailableCondition.class)
-public @interface EnabledOnRedisAvailable {
+@ExtendWith(EnabledOnRedisVersionCondition.class)
+public @interface EnabledOnRedisVersion {
 
 	/**
-	 * Redis port number.
+	 * Minimum version number
 	 */
-	int value() default 6379;
+	String value();
 }
