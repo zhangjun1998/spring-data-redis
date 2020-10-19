@@ -24,9 +24,11 @@ import lombok.NoArgsConstructor;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Example;
@@ -51,19 +53,27 @@ import org.springframework.data.redis.repository.core.MappingRedisEntityInformat
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-public class QueryByExampleRedisExecutorTests {
+public class QueryByExampleRedisExecutorIntegrationTests {
 
-	JedisConnectionFactory connectionFactory;
-	RedisMappingContext mappingContext = new RedisMappingContext();
-	RedisKeyValueTemplate kvTemplate;
+	private static JedisConnectionFactory connectionFactory;
+	private RedisMappingContext mappingContext = new RedisMappingContext();
+	private RedisKeyValueTemplate kvTemplate;
 
-	Person walt, hank, gus;
+	private Person walt, hank, gus;
 
-	@Before
-	public void before() {
-
+	@BeforeAll
+	static void beforeAll() {
 		connectionFactory = new JedisConnectionFactory();
 		connectionFactory.afterPropertiesSet();
+	}
+
+	@AfterAll
+	static void afterAll() {
+		connectionFactory.destroy();
+	}
+
+	@BeforeEach
+	void before() {
 
 		RedisTemplate<byte[], byte[]> template = new RedisTemplate<>();
 		template.setConnectionFactory(connectionFactory);
@@ -87,13 +97,8 @@ public class QueryByExampleRedisExecutorTests {
 		repository.saveAll(Arrays.asList(walt, hank, gus));
 	}
 
-	@After
-	public void tearDown() {
-		connectionFactory.destroy();
-	}
-
 	@Test // DATAREDIS-605
-	public void shouldFindOneByExample() {
+	void shouldFindOneByExample() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -104,7 +109,7 @@ public class QueryByExampleRedisExecutorTests {
 	}
 
 	@Test // DATAREDIS-605
-	public void shouldThrowExceptionWhenFindOneByExampleReturnsNonUniqueResult() {
+	void shouldThrowExceptionWhenFindOneByExampleReturnsNonUniqueResult() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -117,7 +122,7 @@ public class QueryByExampleRedisExecutorTests {
 	}
 
 	@Test // DATAREDIS-605
-	public void shouldNotFindOneByExample() {
+	void shouldNotFindOneByExample() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -127,7 +132,7 @@ public class QueryByExampleRedisExecutorTests {
 	}
 
 	@Test // DATAREDIS-605
-	public void shouldFindAllByExample() {
+	void shouldFindAllByExample() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -140,7 +145,7 @@ public class QueryByExampleRedisExecutorTests {
 	}
 
 	@Test // DATAREDIS-605
-	public void shouldNotSupportFindAllOrdered() {
+	void shouldNotSupportFindAllOrdered() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -153,7 +158,7 @@ public class QueryByExampleRedisExecutorTests {
 	}
 
 	@Test // DATAREDIS-605
-	public void shouldFindAllPagedByExample() {
+	void shouldFindAllPagedByExample() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -167,7 +172,7 @@ public class QueryByExampleRedisExecutorTests {
 	}
 
 	@Test // DATAREDIS-605
-	public void shouldCountCorrectly() {
+	void shouldCountCorrectly() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -182,7 +187,7 @@ public class QueryByExampleRedisExecutorTests {
 	}
 
 	@Test // DATAREDIS-605
-	public void shouldReportExistenceCorrectly() {
+	void shouldReportExistenceCorrectly() {
 
 		QueryByExampleRedisExecutor<Person> executor = new QueryByExampleRedisExecutor<>(getEntityInformation(Person.class),
 				kvTemplate);
@@ -211,9 +216,9 @@ public class QueryByExampleRedisExecutorTests {
 		String lastname;
 		City hometown;
 
-		public Person() {}
+		Person() {}
 
-		public Person(String firstname, String lastname) {
+		Person(String firstname, String lastname) {
 
 			this.firstname = firstname;
 			this.lastname = lastname;

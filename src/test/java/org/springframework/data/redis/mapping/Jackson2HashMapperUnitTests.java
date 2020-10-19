@@ -44,7 +44,7 @@ import org.springframework.data.redis.hash.Jackson2HashMapper;
  * @author Mark Paluch
  */
 @RunWith(Parameterized.class)
-public class Jackson2HashMapperUnitTests extends AbstractHashMapperTest {
+public class Jackson2HashMapperUnitTests extends AbstractHashMapperTests {
 
 	private final Jackson2HashMapper mapper;
 

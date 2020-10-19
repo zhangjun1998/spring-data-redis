@@ -22,13 +22,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationEvent;
@@ -41,17 +38,18 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-@RunWith(MockitoJUnitRunner.class)
-public class KeyExpirationEventMessageListenerTests {
+class KeyExpirationEventMessageListenerIntegrationTests {
 
-	RedisMessageListenerContainer container;
-	RedisConnectionFactory connectionFactory;
-	KeyExpirationEventMessageListener listener;
+	private RedisMessageListenerContainer container;
+	private RedisConnectionFactory connectionFactory;
+	private KeyExpirationEventMessageListener listener;
 
-	@Mock ApplicationEventPublisher publisherMock;
+	ApplicationEventPublisher publisherMock;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
+
+		publisherMock = mock(ApplicationEventPublisher.class);
 
 		JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
 		connectionFactory.afterPropertiesSet();
@@ -71,8 +69,8 @@ public class KeyExpirationEventMessageListenerTests {
 		}
 	}
 
-	@After
-	public void tearDown() throws Exception {
+	@AfterEach
+	void tearDown() throws Exception {
 
 		listener.destroy();
 		container.destroy();
@@ -82,7 +80,7 @@ public class KeyExpirationEventMessageListenerTests {
 	}
 
 	@Test // DATAREDIS-425
-	public void listenerShouldPublishEventCorrectly() {
+	void listenerShouldPublishEventCorrectly() {
 
 		byte[] key = ("to-expire:" + UUID.randomUUID().toString()).getBytes();
 		AtomicBoolean called = new AtomicBoolean();
@@ -106,7 +104,7 @@ public class KeyExpirationEventMessageListenerTests {
 	}
 
 	@Test // DATAREDIS-425
-	public void listenerShouldNotReactToDeleteEvents() throws InterruptedException {
+	void listenerShouldNotReactToDeleteEvents() throws InterruptedException {
 
 		byte[] key = ("to-delete:" + UUID.randomUUID().toString()).getBytes();
 

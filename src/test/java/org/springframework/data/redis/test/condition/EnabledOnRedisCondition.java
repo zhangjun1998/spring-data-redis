@@ -30,32 +30,35 @@ import org.junit.platform.commons.util.AnnotationUtils;
 import org.springframework.data.redis.SettingsUtils;
 
 /**
- * {@link ExecutionCondition} for {@link EnabledOnClusterCondition @EnabledOnClusterAvailable}.
+ * {@link ExecutionCondition} for {@link EnabledOnRedisCondition @EnabledOnRedisAvailable}.
  *
  * @author Mark Paluch
- * @see EnabledOnClusterCondition
+ * @see EnabledOnRedisCondition
  */
-class EnabledOnClusterCondition implements ExecutionCondition {
+class EnabledOnRedisCondition implements ExecutionCondition {
 
 	private static final ConditionEvaluationResult ENABLED_BY_DEFAULT = enabled(
-			"@EnabledOnClusterAvailable is not present");
+			"@EnabledOnRedisAvailable is not present");
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 
-		Optional<EnabledOnClusterAvailable> optional = AnnotationUtils.findAnnotation(context.getElement(),
-				EnabledOnClusterAvailable.class);
+		Optional<EnabledOnRedisAvailable> optional = AnnotationUtils.findAnnotation(context.getElement(),
+				EnabledOnRedisAvailable.class);
 
 		if (optional.isPresent()) {
 
-			try (Socket socket = new Socket()) {
-				socket.connect(new InetSocketAddress(SettingsUtils.getHost(), SettingsUtils.getClusterPort()), 100);
+			EnabledOnRedisAvailable annotation = optional.get();
 
-				return enabled(String.format("Connection successful to Redis Cluster at %s:%d", SettingsUtils.getHost(),
-						SettingsUtils.getClusterPort()));
+			try (Socket socket = new Socket()) {
+				socket.connect(new InetSocketAddress(SettingsUtils.getHost(), annotation.value()), 100);
+
+				return enabled(
+						String.format("Connection successful to Redis at %s:%d", SettingsUtils.getHost(), annotation.value()));
 			} catch (IOException e) {
-				return disabled(String.format("Cannot connect to Redis Cluster at %s:%d (%s)", SettingsUtils.getHost(),
-						SettingsUtils.getClusterPort(), e));
+				return disabled(
+						String.format("Cannot connect to Redis at %s:%d (%s)", SettingsUtils.getHost(), annotation.value(), e));
 			}
 		}
 
