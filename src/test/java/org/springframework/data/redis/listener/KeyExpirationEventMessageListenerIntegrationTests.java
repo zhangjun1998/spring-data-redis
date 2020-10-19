@@ -33,6 +33,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.extension.JedisConnectionFactoryExtension;
+import org.springframework.data.redis.test.extension.RedisStanalone;
 
 /**
  * @author Christoph Strobl
@@ -51,9 +53,7 @@ class KeyExpirationEventMessageListenerIntegrationTests {
 
 		publisherMock = mock(ApplicationEventPublisher.class);
 
-		JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
-		connectionFactory.afterPropertiesSet();
-		this.connectionFactory = connectionFactory;
+		this.connectionFactory = JedisConnectionFactoryExtension.getConnectionFactory(RedisStanalone.class);
 
 		container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
@@ -74,9 +74,6 @@ class KeyExpirationEventMessageListenerIntegrationTests {
 
 		listener.destroy();
 		container.destroy();
-		if (connectionFactory instanceof DisposableBean) {
-			((DisposableBean) connectionFactory).destroy();
-		}
 	}
 
 	@Test // DATAREDIS-425

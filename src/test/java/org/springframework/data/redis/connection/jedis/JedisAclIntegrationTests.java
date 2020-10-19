@@ -26,15 +26,15 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.RedisSentinelConnection;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.test.condition.EnabledOnSentinelAvailable;
-import org.springframework.data.redis.test.condition.EnabledOnVersion;
+import org.springframework.data.redis.test.condition.EnabledOnRedisSentinelAvailable;
+import org.springframework.data.redis.test.condition.EnabledOnRedisVersion;
 
 /**
  * Integration tests for Redis 6 ACL.
  *
  * @author Mark Paluch
  */
-@EnabledOnVersion("6.0")
+@EnabledOnRedisVersion("6.0")
 class JedisAclIntegrationTests {
 
 	@Test
@@ -73,7 +73,7 @@ class JedisAclIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1145
-	@EnabledOnSentinelAvailable(26382)
+	@EnabledOnRedisSentinelAvailable(26382)
 	void shouldConnectSentinelWithAclAuthentication() throws IOException {
 
 		// Note: As per https://github.com/redis/redis/issues/7708, Sentinel does not support ACL authentication yet.

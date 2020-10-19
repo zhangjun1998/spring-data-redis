@@ -25,6 +25,7 @@ import static org.springframework.data.redis.connection.RedisGeoCommands.Distanc
 import static org.springframework.data.redis.connection.RedisGeoCommands.GeoRadiusCommandArgs.*;
 import static org.springframework.data.redis.core.ScanOptions.*;
 
+import org.junit.jupiter.api.TestInstance;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
@@ -68,7 +69,7 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.script.DigestUtils;
 import org.springframework.data.redis.core.types.Expiration;
-import org.springframework.data.redis.test.condition.EnabledOnClusterAvailable;
+import org.springframework.data.redis.test.condition.EnabledOnRedisClusterAvailable;
 import org.springframework.data.redis.test.extension.JedisExtension;
 import org.springframework.data.redis.test.util.HexStringUtils;
 import org.springframework.test.annotation.IfProfileValue;
@@ -78,8 +79,9 @@ import org.springframework.test.annotation.IfProfileValue;
  * @author Mark Paluch
  * @author Pavel Khokhlov
  */
-@EnabledOnClusterAvailable
+@EnabledOnRedisClusterAvailable
 @ExtendWith(JedisExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JedisClusterConnectionTests implements ClusterConnectionTests {
 
 	static final List<HostAndPort> CLUSTER_NODES = Arrays.asList(new HostAndPort(CLUSTER_HOST, MASTER_NODE_1_PORT),

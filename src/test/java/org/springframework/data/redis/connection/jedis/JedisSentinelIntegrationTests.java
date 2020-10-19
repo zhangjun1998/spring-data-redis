@@ -25,11 +25,8 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.redis.connection.AbstractConnectionIntegrationTests;
@@ -37,11 +34,7 @@ import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.RedisSentinelConnection;
 import org.springframework.data.redis.connection.RedisServer;
 import org.springframework.data.redis.connection.ReturnType;
-import org.springframework.data.redis.test.condition.EnabledOnSentinelAvailable;
-import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
-import org.springframework.data.redis.test.util.RedisSentinelRule;
-import org.springframework.data.redis.test.util.RelaxedJUnit4ClassRunner;
-import org.springframework.test.annotation.IfProfileValue;
+import org.springframework.data.redis.test.condition.EnabledOnRedisSentinelAvailable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -53,7 +46,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("JedisConnectionIntegrationTests-context.xml")
-@EnabledOnSentinelAvailable
+@EnabledOnRedisSentinelAvailable
 public class JedisSentinelIntegrationTests extends AbstractConnectionIntegrationTests {
 
 	private static final String MASTER_NAME = "mymaster";

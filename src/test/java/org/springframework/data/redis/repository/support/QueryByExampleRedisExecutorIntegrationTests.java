@@ -38,6 +38,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.keyvalue.core.KeyValueTemplate;
 import org.springframework.data.keyvalue.repository.support.SimpleKeyValueRepository;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.extension.JedisConnectionFactoryExtension;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisKeyValueTemplate;
@@ -46,6 +47,7 @@ import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.data.redis.core.mapping.RedisMappingContext;
 import org.springframework.data.redis.core.mapping.RedisPersistentEntity;
 import org.springframework.data.redis.repository.core.MappingRedisEntityInformation;
+import org.springframework.data.redis.test.extension.RedisStanalone;
 
 /**
  * Integration tests for {@link QueryByExampleRedisExecutor}.
@@ -63,13 +65,7 @@ public class QueryByExampleRedisExecutorIntegrationTests {
 
 	@BeforeAll
 	static void beforeAll() {
-		connectionFactory = new JedisConnectionFactory();
-		connectionFactory.afterPropertiesSet();
-	}
-
-	@AfterAll
-	static void afterAll() {
-		connectionFactory.destroy();
+		connectionFactory = JedisConnectionFactoryExtension.getConnectionFactory(RedisStanalone.class);
 	}
 
 	@BeforeEach

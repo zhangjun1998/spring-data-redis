@@ -36,10 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.assertj.core.data.Offset;
 import org.awaitility.Awaitility;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.AssumptionViolatedException;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,7 +54,6 @@ import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.RedisSystemException;
-import org.springframework.data.redis.RedisTestProfileValueSource;
 import org.springframework.data.redis.RedisVersionUtils;
 import org.springframework.data.redis.TestCondition;
 import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
@@ -87,12 +84,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.core.types.RedisClientInfo;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.test.condition.EnabledOnCommand;
+import org.springframework.data.redis.test.condition.EnabledOnRedisVersion;
 import org.springframework.data.redis.test.util.HexStringUtils;
 import org.springframework.data.redis.test.util.RedisClientRule;
 import org.springframework.data.redis.test.util.RedisDriver;
 import org.springframework.data.redis.test.util.WithRedisDriver;
 import org.springframework.test.annotation.IfProfileValue;
-import org.springframework.test.annotation.ProfileValueSourceConfiguration;
 
 /**
  * Base test class for AbstractConnection integration tests
@@ -1094,7 +1092,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-696
-	@IfProfileValue(name = "redisVersion", value = "3.0+")
 	public void testRestoreExistingKeyWithReplaceOption() {
 
 		actual.add(connection.set("testing", "12"));
@@ -1132,7 +1129,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-693
-	@IfProfileValue(name = "redisVersion", value = "4.0+")
 	public void unlinkReturnsNrOfKeysRemoved() {
 
 		actual.add(connection.set("unlink.this", "Can't track this!"));
@@ -1143,7 +1139,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-693
-	@IfProfileValue(name = "redisVersion", value = "4.0+")
 	public void testUnlinkBatch() {
 
 		actual.add(connection.set("testing", "123"));
@@ -1155,7 +1150,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-693
-	@IfProfileValue(name = "redisVersion", value = "4.0+")
 	public void unlinkReturnsZeroIfNoKeysRemoved() {
 
 		actual.add(connection.unlink("unlink.this"));
@@ -1457,7 +1451,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void lPos() {
 
@@ -1468,7 +1462,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void lPosRank() {
 
@@ -1479,7 +1473,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void lPosNegativeRank() {
 
@@ -1490,7 +1484,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void lPosCount() {
 
@@ -1501,7 +1495,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void lPosRankCount() {
 
@@ -1512,7 +1506,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void lPosCountZero() {
 
@@ -1750,8 +1744,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-729
-	@IfProfileValue(name = "redisVersion", value = "2.9.0+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void zLexCountTest() {
 
 		actual.add(connection.zAdd("myzset", 0, "a"));
@@ -2169,7 +2161,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-290
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
 	public void scanShouldReadEntireValueRange() {
 
 		if (!ConnectionUtils.isJedis(connectionFactory) && !ConnectionUtils.isLettuce(connectionFactory)) {
@@ -2200,8 +2191,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-417
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void scanShouldReadEntireValueRangeWhenIdividualScanIterationsReturnEmptyCollection() {
 
 		connection.execute("DEBUG", "POPULATE".getBytes(), "100".getBytes());
@@ -2218,7 +2207,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-306
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
 	public void zScanShouldReadEntireValueRange() {
 
 		if (!ConnectionUtils.isJedis(connectionFactory) && !ConnectionUtils.isLettuce(connectionFactory)) {
@@ -2250,7 +2238,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-304
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
 	public void sScanShouldReadEntireValueRange() {
 
 		if (!ConnectionUtils.isJedis(connectionFactory) && !ConnectionUtils.isLettuce(connectionFactory)) {
@@ -2276,7 +2263,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-305
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
 	public void hScanShouldReadEntireValueRange() {
 
 		if (!ConnectionUtils.isJedis(connectionFactory) && !ConnectionUtils.isLettuce(connectionFactory)) {
@@ -2311,8 +2297,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-308
-	@IfProfileValue(name = "redisVersion", value = "2.8.9+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void pfAddShouldAddToNonExistingKeyCorrectly() {
 
 		actual.add(connection.pfAdd("hll", "a", "b", "c"));
@@ -2322,8 +2306,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-308
-	@IfProfileValue(name = "redisVersion", value = "2.8.9+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void pfAddShouldReturnZeroWhenValueAlreadyExists() {
 
 		actual.add(connection.pfAdd("hll", "a", "b", "c"));
@@ -2337,8 +2319,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-308
-	@IfProfileValue(name = "redisVersion", value = "2.8.9+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void pfCountShouldReturnCorrectly() {
 
 		actual.add(connection.pfAdd("hll", "a", "b", "c"));
@@ -2350,8 +2330,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-308
-	@IfProfileValue(name = "redisVersion", value = "2.8.9+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void pfCountWithMultipleKeysShouldReturnCorrectly() {
 
 		actual.add(connection.pfAdd("hll", "a", "b", "c"));
@@ -2365,16 +2343,12 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-308
-	@IfProfileValue(name = "redisVersion", value = "2.8.9+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void pfCountWithNullKeysShouldThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> actual.add(connection.pfCount((String[]) null)));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test // DATAREDIS-378, DATAREDIS-1222
-	@IfProfileValue(name = "redisVersion", value = "2.9.0+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void zRangeByLexTest() {
 
 		actual.add(connection.zAdd("myzset", 0, "a"));
@@ -2407,8 +2381,6 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@SuppressWarnings("unchecked")
 	@Test // DATAREDIS-729
-	@IfProfileValue(name = "redisVersion", value = "2.9.0+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void zRevRangeByLexTest() {
 
 		actual.add(connection.zAdd("myzset", 0, "a"));
@@ -2440,7 +2412,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class) // DATAREDIS-316, DATAREDIS-692
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithExpirationAndNullOpionShouldThrowException() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2448,7 +2419,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithExpirationAndUpsertOpionShouldSetTtlWhenKeyDoesNotExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2464,7 +2434,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithExpirationAndUpsertOpionShouldSetTtlWhenKeyDoesExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2484,7 +2453,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithExpirationAndAbsentOptionShouldSetTtlWhenKeyDoesExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2504,7 +2472,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithExpirationAndAbsentOptionShouldSetTtlWhenKeyDoesNotExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2522,7 +2489,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithExpirationAndPresentOptionShouldSetTtlWhenKeyDoesExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2542,7 +2508,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithExpirationAndPresentOptionShouldSetTtlWhenKeyDoesNotExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2559,7 +2524,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class) // DATAREDIS-316, DATAREDIS-692
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithNullExpirationAndUpsertOpionShouldThrowException() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2567,7 +2531,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithoutExpirationAndUpsertOpionShouldSetTtlWhenKeyDoesNotExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2583,7 +2546,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithoutExpirationAndUpsertOpionShouldSetTtlWhenKeyDoesExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2604,7 +2566,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithoutExpirationAndAbsentOptionShouldSetTtlWhenKeyDoesExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2624,7 +2585,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithoutExpirationAndAbsentOptionShouldSetTtlWhenKeyDoesNotExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2642,7 +2602,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithoutExpirationAndPresentOptionShouldSetTtlWhenKeyDoesExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2662,7 +2621,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-316
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void setWithoutExpirationAndPresentOptionShouldSetTtlWhenKeyDoesNotExist() {
 
 		String key = "exp-" + UUID.randomUUID();
@@ -2679,8 +2637,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoAddSingleGeoLocation() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2691,8 +2647,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoAddMultipleGeoLocations() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2703,8 +2657,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoDist() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2717,8 +2669,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1214
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoDistNotExisting() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2730,8 +2680,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoDistWithMetric() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2744,7 +2692,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	@WithRedisDriver({ RedisDriver.JEDIS })
 	public void geoHash() {
 
@@ -2758,7 +2705,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	@WithRedisDriver({ RedisDriver.JEDIS })
 	public void geoHashNonExisting() {
 
@@ -2773,8 +2719,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoPosition() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2791,8 +2735,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoPositionNonExisting() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2811,8 +2753,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoRadiusShouldReturnMembersCorrectly() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2827,8 +2767,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoRadiusShouldReturnDistanceCorrectly() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2846,8 +2784,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoRadiusShouldApplyLimit() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2861,8 +2797,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoRadiusByMemberShouldReturnMembersCorrectly() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2879,8 +2813,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoRadiusByMemberShouldReturnDistanceCorrectly() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2898,8 +2830,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void geoRadiusByMemberShouldApplyLimit() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2957,7 +2887,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-697
-	@IfProfileValue(name = "redisVersion", value = "2.8.7+")
 	public void bitPosShouldReturnPositionCorrectly() {
 
 		actual.add(connection.set("bitpos-1".getBytes(), HexStringUtils.hexToBytes("fff000")));
@@ -2967,7 +2896,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-697
-	@IfProfileValue(name = "redisVersion", value = "2.8.7+")
 	public void bitPosShouldReturnPositionInRangeCorrectly() {
 
 		actual.add(connection.set("bitpos-1".getBytes(), HexStringUtils.hexToBytes("fff0f0")));
@@ -3033,8 +2961,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void bitFieldSetShouldWorkCorrectly() {
 
 		actual.add(connection.bitfield(KEY_1, create().set(INT_8).valueAt(BitFieldSubCommands.Offset.offset(0L)).to(10L)));
@@ -3046,8 +2972,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void bitFieldGetShouldWorkCorrectly() {
 
 		actual.add(connection.bitfield(KEY_1, create().get(INT_8).valueAt(BitFieldSubCommands.Offset.offset(0L))));
@@ -3057,8 +2981,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void bitFieldIncrByShouldWorkCorrectly() {
 
 		actual
@@ -3069,8 +2991,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void bitFieldIncrByWithOverflowShouldWorkCorrectly() {
 
 		actual.add(connection.bitfield(KEY_1,
@@ -3090,8 +3010,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void bitfieldShouldAllowMultipleSubcommands() {
 
 		actual.add(connection.bitfield(KEY_1,
@@ -3101,8 +3019,6 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
 	public void bitfieldShouldWorkUsingNonZeroBasedOffset() {
 
 		actual.add(connection.bitfield(KEY_1,
@@ -3118,7 +3034,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-864
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xAddShouldCreateStream() {
 
@@ -3132,7 +3048,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-864
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xReadShouldReadMessage() {
 
@@ -3148,7 +3064,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-864
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xReadGroupShouldReadMessage() {
 
@@ -3170,7 +3086,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-864
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xGroupCreateShouldWorkWithAndWithoutExistingStream() {
 
@@ -3193,7 +3109,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-864
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xRangeShouldReportMessages() {
 
@@ -3214,7 +3130,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-864
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xRevRangeShouldReportMessages() {
 
@@ -3236,7 +3152,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1207
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xRevRangeShouldWorkWithBoundedRange() {
 
@@ -3258,7 +3174,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1084
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xPendingShouldLoadOverviewCorrectly() {
 
@@ -3280,7 +3196,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1084
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xPendingShouldLoadEmptyOverviewCorrectly() {
 
@@ -3299,7 +3215,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1084
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xPendingShouldLoadPendingMessages() {
 
@@ -3322,7 +3238,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1207
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xPendingShouldWorkWithBoundedRange() {
 
@@ -3345,7 +3261,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1084
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xPendingShouldLoadPendingMessagesForConsumer() {
 
@@ -3369,7 +3285,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1084
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xPendingShouldLoadPendingMessagesForNonExistingConsumer() {
 
@@ -3389,7 +3305,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1084
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xPendingShouldLoadEmptyPendingMessages() {
 
@@ -3406,7 +3322,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1084
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xClaim() throws InterruptedException {
 
@@ -3427,7 +3343,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1119
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xinfo() {
 
@@ -3456,7 +3372,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1119
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xinfoNoGroup() {
 
@@ -3481,7 +3397,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1119
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xinfoGroups() {
 
@@ -3506,7 +3422,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1119
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xinfoGroupsNoGroup() {
 
@@ -3523,7 +3439,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1119
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xinfoGroupsNoConsumer() {
 
@@ -3546,7 +3462,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1119
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xinfoConsumers() {
 
@@ -3570,7 +3486,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-1119
-	@IfProfileValue(name = "redisVersion", value = "5.0")
+	@EnabledOnCommand("XADD")
 	@WithRedisDriver({ RedisDriver.LETTUCE })
 	public void xinfoConsumersNoConsumer() {
 

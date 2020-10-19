@@ -80,7 +80,6 @@ public class PubSubResubscribeTests {
 	public PubSubResubscribeTests(RedisConnectionFactory connectionFactory) {
 
 		this.factory = connectionFactory;
-		ConnectionFactoryTracker.add(factory);
 	}
 
 	@BeforeClass

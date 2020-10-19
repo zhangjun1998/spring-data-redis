@@ -21,13 +21,12 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 
-import java.io.IOException;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.springframework.data.redis.test.condition.EnabledOnClusterAvailable;
+import org.springframework.data.redis.test.condition.EnabledOnRedisClusterAvailable;
 import org.springframework.data.redis.test.extension.JedisExtension;
 import org.springframework.util.StringUtils;
 
@@ -35,7 +34,7 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-@EnabledOnClusterAvailable
+@EnabledOnRedisClusterAvailable
 @ExtendWith(JedisExtension.class)
 public class ClusterSlotHashUtilsTests {
 

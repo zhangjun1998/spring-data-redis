@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
-import org.springframework.data.redis.test.condition.EnabledOnSentinelAvailable;
+import org.springframework.data.redis.test.condition.EnabledOnRedisSentinelAvailable;
 import org.springframework.lang.Nullable;
 
 /**
@@ -33,7 +33,7 @@ import org.springframework.lang.Nullable;
  * @author Mark Paluch
  * @author Ajith Kumar
  */
-@EnabledOnSentinelAvailable
+@EnabledOnRedisSentinelAvailable
 class JedisConnectionFactorySentinelIntegrationTests {
 
 	private static final RedisSentinelConfiguration SENTINEL_CONFIG = new RedisSentinelConfiguration().master("mymaster")
