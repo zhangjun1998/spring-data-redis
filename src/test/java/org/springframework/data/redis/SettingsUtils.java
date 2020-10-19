@@ -35,6 +35,8 @@ public abstract class SettingsUtils {
 	static {
 		DEFAULTS.put("host", "127.0.0.1");
 		DEFAULTS.put("port", "6379");
+		DEFAULTS.put("clusterPort", "7379");
+		DEFAULTS.put("sentinelPort", "26379");
 		DEFAULTS.put("socket", "work/redis-6379.sock");
 
 		SETTINGS = new Properties(DEFAULTS);
@@ -60,6 +62,20 @@ public abstract class SettingsUtils {
 	 */
 	public static int getPort() {
 		return Integer.valueOf(SETTINGS.getProperty("port"));
+	}
+
+	/**
+	 * @return the Redis Cluster port.
+	 */
+	public static int getSentinelPort() {
+		return Integer.valueOf(SETTINGS.getProperty("sentinelPort"));
+	}
+
+	/**
+	 * @return the Redis Cluster port.
+	 */
+	public static int getClusterPort() {
+		return Integer.valueOf(SETTINGS.getProperty("clusterPort"));
 	}
 
 	/**
