@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.Address;
-import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.Person;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.extension.JedisConnectionFactoryExtension;
