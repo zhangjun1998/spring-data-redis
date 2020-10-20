@@ -192,5 +192,25 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 				JedisClientConfiguration clientConfig) {
 			super(clusterConfig, clientConfig);
 		}
+
+		@Override
+		public String toString() {
+
+			StringBuilder builder = new StringBuilder("Jedis");
+
+			if (isRedisClusterAware()) {
+				builder.append(" Cluster");
+			}
+
+			if (isRedisSentinelAware()) {
+				builder.append(" Sentinel");
+			}
+
+			if (getUsePool()) {
+				builder.append(" [pool]");
+			}
+
+			return builder.toString();
+		}
 	}
 }

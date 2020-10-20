@@ -255,5 +255,25 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 				LettuceClientConfiguration clientConfig) {
 			super(clusterConfiguration, clientConfig);
 		}
+
+		@Override
+		public String toString() {
+
+			StringBuilder builder = new StringBuilder("Lettuce");
+
+			if (isClusterAware()) {
+				builder.append(" Cluster");
+			}
+
+			if (isRedisSentinelAware()) {
+				builder.append(" Sentinel");
+			}
+
+			if (this.getClientConfiguration() instanceof LettucePoolingClientConfiguration) {
+				builder.append(" [pool]");
+			}
+
+			return builder.toString();
+		}
 	}
 }
