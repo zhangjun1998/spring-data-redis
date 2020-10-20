@@ -20,14 +20,43 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.springframework.data.redis.test.condition.EnabledOnRedisDriverCondition;
+
 /**
- * An annotation to declare the supported {@link RedisDriver} types.
+ * {@code @WithRedisDriver} is used to signal that the annotated test class or test method is only <em>enabled</em> when
+ * one of the {@link #value() specified Redis Clients} is used.
+ * <p>
+ * When applied at the class level, all test methods within that class will be enabled on the same specified Redis
+ * Clients.
+ * <p>
+ * This annotation must be used in combination with {@link DriverQualifier @DriverQualifier} so the extension can
+ * identify the driver from a {@link org.springframework.data.redis.connection.RedisConnectionFactory}.
+ * <p>
+ * If a test method is disabled via this annotation, that does not prevent the test class from being instantiated.
+ * Rather, it prevents the execution of the test method and method-level lifecycle callbacks such as {@code @BeforeEach}
+ * methods, {@code @AfterEach} methods, and corresponding extension APIs.
  *
  * @author Thomas Darimont
+ * @author Mark Paluch
+ * @see org.springframework.data.redis.connection.RedisConnectionFactory
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(EnabledOnRedisDriverCondition.class)
 public @interface WithRedisDriver {
 
 	RedisDriver[] value() default {};
+
+	/**
+	 * Annotation to identify the field that holds the
+	 * {@link org.springframework.data.redis.connection.RedisConnectionFactory} to inspect.
+	 */
+	@Target(ElementType.FIELD)
+	@Retention(RetentionPolicy.RUNTIME)
+	@interface DriverQualifier {
+
+	}
+
 }
