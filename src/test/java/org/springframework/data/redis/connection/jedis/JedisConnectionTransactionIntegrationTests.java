@@ -17,16 +17,16 @@ package org.springframework.data.redis.connection.jedis;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.redis.connection.AbstractConnectionTransactionIntegrationTests;
-import org.springframework.data.redis.test.util.RelaxedJUnit4ClassRunner;
 import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration test of {@link JedisConnection} transaction functionality.
@@ -37,11 +37,11 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Jennifer Hickey
  * @author Mark Paluch
  */
-@RunWith(RelaxedJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("JedisConnectionIntegrationTests-context.xml")
 public class JedisConnectionTransactionIntegrationTests extends AbstractConnectionTransactionIntegrationTests {
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		try {
 			connection.flushAll();
@@ -55,48 +55,41 @@ public class JedisConnectionTransactionIntegrationTests extends AbstractConnecti
 		connection = null;
 	}
 
-	@Ignore("Jedis issue: Transaction tries to return String instead of List<String>")
+	@Disabled("Jedis issue: Transaction tries to return String instead of List<String>")
 	public void testGetConfig() {}
 
 	// Unsupported Ops
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testScriptLoadEvalSha() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testScriptLoadEvalSha);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalShaArrayStrings() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaArrayStrings);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalShaArrayBytes() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaArrayBytes);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalShaNotFound() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaNotFound);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalShaArrayError() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaArrayError);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalArrayScriptError() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalArrayScriptError);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnString() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnString);
 	}
@@ -108,91 +101,76 @@ public class JedisConnectionTransactionIntegrationTests extends AbstractConnecti
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnSingleOK() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnSingleOK);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnSingleError() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnSingleError);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnFalse() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnFalse);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnTrue() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnTrue);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnArrayStrings() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayStrings);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnArrayNumbers() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayNumbers);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnArrayOKs() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayOKs);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnArrayFalses() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayFalses);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnArrayTrues() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayTrues);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testScriptExists() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testScriptExists);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testScriptKill() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> connection.scriptKill());
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testScriptFlush() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> connection.scriptFlush());
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testInfoBySection() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testInfoBySection);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testRestoreBadData() {
 		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testRestoreBadData);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testRestoreExistingKey() {
 		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testRestoreExistingKey);
 	}

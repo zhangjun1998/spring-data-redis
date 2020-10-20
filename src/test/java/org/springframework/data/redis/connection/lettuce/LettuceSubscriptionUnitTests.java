@@ -23,8 +23,8 @@ import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
 
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.connection.RedisInvalidSubscriptionException;
@@ -36,7 +36,7 @@ import org.springframework.data.redis.connection.RedisInvalidSubscriptionExcepti
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-public class LettuceSubscriptionTests {
+class LettuceSubscriptionUnitTests {
 
 	private LettuceSubscription subscription;
 
@@ -47,8 +47,8 @@ public class LettuceSubscriptionTests {
 	private LettuceConnectionProvider connectionProvider;
 
 	@SuppressWarnings("unchecked")
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		pubsub = mock(StatefulRedisPubSubConnection.class);
 		asyncCommands = mock(RedisPubSubCommands.class);
@@ -59,7 +59,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeAllAndClose() {
+	void testUnsubscribeAllAndClose() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.unsubscribe();
@@ -75,7 +75,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeAllChannelsWithPatterns() {
+	void testUnsubscribeAllChannelsWithPatterns() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.pSubscribe(new byte[][] { "s*".getBytes() });
@@ -93,7 +93,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeChannelAndClose() {
+	void testUnsubscribeChannelAndClose() {
 
 		byte[][] channel = new byte[][] { "a".getBytes() };
 
@@ -112,7 +112,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeChannelSomeLeft() {
+	void testUnsubscribeChannelSomeLeft() {
 
 		byte[][] channels = new byte[][] { "a".getBytes(), "b".getBytes() };
 
@@ -132,7 +132,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeChannelWithPatterns() {
+	void testUnsubscribeChannelWithPatterns() {
 
 		byte[][] channel = new byte[][] { "a".getBytes() };
 
@@ -153,7 +153,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeChannelWithPatternsSomeLeft() {
+	void testUnsubscribeChannelWithPatternsSomeLeft() {
 
 		byte[][] channel = new byte[][] { "a".getBytes() };
 
@@ -176,7 +176,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeAllNoChannels() {
+	void testUnsubscribeAllNoChannels() {
 
 		subscription.pSubscribe(new byte[][] { "s*".getBytes() });
 		subscription.unsubscribe();
@@ -193,7 +193,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribeNotAlive() {
+	void testUnsubscribeNotAlive() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.unsubscribe();
@@ -208,18 +208,20 @@ public class LettuceSubscriptionTests {
 		verify(asyncCommands, never()).punsubscribe();
 	}
 
-	@Test(expected = RedisInvalidSubscriptionException.class)
-	public void testSubscribeNotAlive() {
+	@Test
+	void testSubscribeNotAlive() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.unsubscribe();
 
 		assertThat(subscription.isAlive()).isFalse();
-		subscription.subscribe(new byte[][] { "s".getBytes() });
+
+		assertThatExceptionOfType(RedisInvalidSubscriptionException.class)
+				.isThrownBy(() -> subscription.subscribe(new byte[][] { "s".getBytes() }));
 	}
 
 	@Test
-	public void testPUnsubscribeAllAndClose() {
+	void testPUnsubscribeAllAndClose() {
 
 		subscription.pSubscribe(new byte[][] { "a*".getBytes() });
 		subscription.pUnsubscribe();
@@ -235,7 +237,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testPUnsubscribeAllPatternsWithChannels() {
+	void testPUnsubscribeAllPatternsWithChannels() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.pSubscribe(new byte[][] { "s*".getBytes() });
@@ -253,7 +255,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testPUnsubscribeAndClose() {
+	void testPUnsubscribeAndClose() {
 
 		byte[][] pattern = new byte[][] { "a*".getBytes() };
 
@@ -272,7 +274,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testPUnsubscribePatternSomeLeft() {
+	void testPUnsubscribePatternSomeLeft() {
 
 		byte[][] patterns = new byte[][] { "a*".getBytes(), "b*".getBytes() };
 		subscription.pSubscribe(patterns);
@@ -291,7 +293,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testPUnsubscribePatternWithChannels() {
+	void testPUnsubscribePatternWithChannels() {
 
 		byte[][] pattern = new byte[][] { "s*".getBytes() };
 
@@ -312,7 +314,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testUnsubscribePatternWithChannelsSomeLeft() {
+	void testUnsubscribePatternWithChannelsSomeLeft() {
 
 		byte[][] pattern = new byte[][] { "a*".getBytes() };
 
@@ -336,7 +338,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testPUnsubscribeAllNoPatterns() {
+	void testPUnsubscribeAllNoPatterns() {
 
 		subscription.subscribe(new byte[][] { "s".getBytes() });
 		subscription.pUnsubscribe();
@@ -352,7 +354,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testPUnsubscribeNotAlive() {
+	void testPUnsubscribeNotAlive() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.unsubscribe();
@@ -367,19 +369,20 @@ public class LettuceSubscriptionTests {
 		verify(asyncCommands, never()).punsubscribe();
 	}
 
-	@Test(expected = RedisInvalidSubscriptionException.class)
-	public void testPSubscribeNotAlive() {
+	@Test
+	void testPSubscribeNotAlive() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.unsubscribe();
 
 		assertThat(subscription.isAlive()).isFalse();
 
-		subscription.pSubscribe(new byte[][] { "s*".getBytes() });
+		assertThatExceptionOfType(RedisInvalidSubscriptionException.class)
+				.isThrownBy(() -> subscription.pSubscribe(new byte[][] { "s*".getBytes() }));
 	}
 
 	@Test
-	public void testDoCloseNotSubscribed() {
+	void testDoCloseNotSubscribed() {
 
 		subscription.doClose();
 
@@ -388,7 +391,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testDoCloseSubscribedChannels() {
+	void testDoCloseSubscribedChannels() {
 
 		subscription.subscribe(new byte[][] { "a".getBytes() });
 		subscription.doClose();
@@ -398,7 +401,7 @@ public class LettuceSubscriptionTests {
 	}
 
 	@Test
-	public void testDoCloseSubscribedPatterns() {
+	void testDoCloseSubscribedPatterns() {
 
 		subscription.pSubscribe(new byte[][] { "a*".getBytes() });
 		subscription.doClose();

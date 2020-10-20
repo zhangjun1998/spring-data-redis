@@ -22,17 +22,17 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.data.redis.connection.ReactiveListCommands;
 
 /**
  * @author Christoph Strobl
  */
-public class LettuceReactiveClusterListCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterListCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
 
 	@Test // DATAREDIS-525
-	public void bRPopLPushShouldWorkCorrectlyWhenAllKeysMapToSameSlot() {
+	void bRPopLPushShouldWorkCorrectlyWhenAllKeysMapToSameSlot() {
 
 		nativeCommands.rpush(SAME_SLOT_KEY_1, VALUE_1, VALUE_2, VALUE_3);
 		nativeCommands.rpush(SAME_SLOT_KEY_2, VALUE_1);
@@ -46,7 +46,7 @@ public class LettuceReactiveClusterListCommandsTests extends LettuceReactiveClus
 	}
 
 	@Test // DATAREDIS-525
-	public void blPopShouldReturnFirstAvailableWhenAllKeysMapToTheSameSlot() {
+	void blPopShouldReturnFirstAvailableWhenAllKeysMapToTheSameSlot() {
 
 		nativeCommands.rpush(SAME_SLOT_KEY_1, VALUE_1, VALUE_2, VALUE_3);
 

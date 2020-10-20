@@ -15,41 +15,40 @@
  */
 package org.springframework.data.redis.connection.lettuce;
 
-import static org.assertj.core.api.Assumptions.*;
-
 import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.springframework.data.redis.test.util.LettuceRedisClusterClientProvider;
+import org.springframework.data.redis.test.condition.EnabledOnRedisClusterAvailable;
+import org.springframework.data.redis.test.extension.LettuceExtension;
 
 /**
  * @author Christoph Strobl
  * @author Mark Paluch
  */
+@EnabledOnRedisClusterAvailable
+@ExtendWith(LettuceExtension.class)
 public abstract class LettuceReactiveClusterCommandsTestsBase {
-
-	public static @ClassRule LettuceRedisClusterClientProvider clientProvider = LettuceRedisClusterClientProvider.local();
 
 	RedisClusterCommands<String, String> nativeCommands;
 	LettuceReactiveRedisClusterConnection connection;
 
-	@Before
-	public void before() {
+	@BeforeEach
+	public void before(RedisClusterClient clusterClient) {
 
-		assumeThat(clientProvider.test()).isTrue();
-
-		nativeCommands = clientProvider.getClient().connect().sync();
+		nativeCommands = clusterClient.connect().sync();
 		connection = new LettuceReactiveRedisClusterConnection(
-				new ClusterConnectionProvider(clientProvider.getClient(), LettuceReactiveRedisConnection.CODEC),
-				clientProvider.getClient());
+				new ClusterConnectionProvider(clusterClient, LettuceReactiveRedisConnection.CODEC), clusterClient);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 
 		if (nativeCommands != null) {

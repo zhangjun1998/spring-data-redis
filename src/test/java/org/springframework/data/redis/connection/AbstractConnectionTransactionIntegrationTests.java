@@ -20,10 +20,8 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
-import org.springframework.test.annotation.IfProfileValue;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Jennifer Hickey
@@ -32,23 +30,23 @@ import org.springframework.test.annotation.IfProfileValue;
  */
 abstract public class AbstractConnectionTransactionIntegrationTests extends AbstractConnectionIntegrationTests {
 
-	@Ignore
+	@Disabled
 	public void testMultiDiscard() {}
 
-	@Ignore
+	@Disabled
 	public void testMultiExec() {}
 
-	@Ignore
+	@Disabled
 	public void testUnwatch() {}
 
-	@Ignore
+	@Disabled
 	public void testWatch() {}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testExecWithoutMulti() {}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testErrorInTx() {}
 
@@ -58,40 +56,40 @@ abstract public class AbstractConnectionTransactionIntegrationTests extends Abst
 	 * clients to perform a push operation. *
 	 */
 
-	@Ignore
+	@Disabled
 	public void testBLPop() {}
 
-	@Ignore
+	@Disabled
 	public void testBRPop() {}
 
-	@Ignore
+	@Disabled
 	public void testBRPopLPush() {}
 
-	@Ignore
+	@Disabled
 	public void testBLPopTimeout() {}
 
-	@Ignore
+	@Disabled
 	public void testBRPopTimeout() {}
 
-	@Ignore
+	@Disabled
 	public void testBRPopLPushTimeout() {}
 
-	@Ignore("Pub/Sub not supported with transactions")
+	@Disabled("Pub/Sub not supported with transactions")
 	public void testPubSubWithNamedChannels() throws Exception {}
 
-	@Ignore("Pub/Sub not supported with transactions")
+	@Disabled("Pub/Sub not supported with transactions")
 	public void testPubSubWithPatterns() throws Exception {}
 
-	@Ignore
+	@Disabled
 	public void testNullKey() throws Exception {}
 
-	@Ignore
+	@Disabled
 	public void testNullValue() throws Exception {}
 
-	@Ignore
+	@Disabled
 	public void testHashNullKey() throws Exception {}
 
-	@Ignore
+	@Disabled
 	public void testHashNullValue() throws Exception {}
 
 	@Test
@@ -99,23 +97,22 @@ abstract public class AbstractConnectionTransactionIntegrationTests extends Abst
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> connection.watch("foo".getBytes()));
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
+	@Test
 	public void testScriptKill() {
 		// Impossible to call script kill in a tx because you can't issue the
 		// exec command while Redis is running a script
-		connection.scriptKill();
+		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> connection.scriptKill());
 	}
 
 	@Test // DATAREDIS-417
-	@Ignore
+	@Disabled
 	@Override
 	public void scanShouldReadEntireValueRangeWhenIdividualScanIterationsReturnEmptyCollection() {
 		super.scanShouldReadEntireValueRangeWhenIdividualScanIterationsReturnEmptyCollection();
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void xClaim() throws InterruptedException {
 		super.xClaim();
 	}

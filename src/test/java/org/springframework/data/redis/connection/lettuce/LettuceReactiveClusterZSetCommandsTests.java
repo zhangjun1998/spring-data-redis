@@ -20,15 +20,15 @@ import static org.springframework.data.redis.connection.lettuce.LettuceReactiveC
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Christoph Strobl
  */
-public class LettuceReactiveClusterZSetCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterZSetCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
 
 	@Test // DATAREDIS-525
-	public void zUnionStoreShouldWorkWhenAllKeysMapToSameSlot() {
+	void zUnionStoreShouldWorkWhenAllKeysMapToSameSlot() {
 
 		nativeCommands.zadd(SAME_SLOT_KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(SAME_SLOT_KEY_1, 2D, VALUE_2);
@@ -42,7 +42,7 @@ public class LettuceReactiveClusterZSetCommandsTests extends LettuceReactiveClus
 	}
 
 	@Test // DATAREDIS-525
-	public void zInterStoreShouldWorkCorrectlyWhenKeysMapToSameSlot() {
+	void zInterStoreShouldWorkCorrectlyWhenKeysMapToSameSlot() {
 
 		nativeCommands.zadd(SAME_SLOT_KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(SAME_SLOT_KEY_1, 2D, VALUE_2);

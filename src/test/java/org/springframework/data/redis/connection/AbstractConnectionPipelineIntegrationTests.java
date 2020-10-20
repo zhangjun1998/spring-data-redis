@@ -21,10 +21,8 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
-import org.springframework.test.annotation.IfProfileValue;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Base test class for integration tests that execute each operation of a Connection while a pipeline is open, verifying
@@ -38,22 +36,22 @@ import org.springframework.test.annotation.IfProfileValue;
  */
 abstract public class AbstractConnectionPipelineIntegrationTests extends AbstractConnectionIntegrationTests {
 
-	@Ignore
+	@Disabled
 	public void testNullKey() throws Exception {}
 
-	@Ignore
+	@Disabled
 	public void testNullValue() throws Exception {}
 
-	@Ignore
+	@Disabled
 	public void testHashNullKey() throws Exception {}
 
-	@Ignore
+	@Disabled
 	public void testHashNullValue() throws Exception {}
 
-	@Ignore("Pub/Sub not supported while pipelining")
+	@Disabled("Pub/Sub not supported while pipelining")
 	public void testPubSubWithNamedChannels() throws Exception {}
 
-	@Ignore("Pub/Sub not supported while pipelining")
+	@Disabled("Pub/Sub not supported while pipelining")
 	public void testPubSubWithPatterns() throws Exception {}
 
 	@Test
@@ -72,35 +70,30 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalShaNotFound() {
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testEvalShaNotFound);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalReturnSingleError() {
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testEvalReturnSingleError);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testRestoreBadData() {
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testRestoreBadData);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testRestoreExistingKey() {
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testRestoreExistingKey);
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void testEvalArrayScriptError() {}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
 	public void testEvalShaArrayError() {
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testEvalShaArrayError);
 	}
@@ -120,14 +113,14 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 	}
 
 	@Test // DATAREDIS-417
-	@Ignore
+	@Disabled
 	@Override
 	public void scanShouldReadEntireValueRangeWhenIdividualScanIterationsReturnEmptyCollection() {
 		super.scanShouldReadEntireValueRangeWhenIdividualScanIterationsReturnEmptyCollection();
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void xClaim() throws InterruptedException {
 		super.xClaim();
 	}

@@ -24,19 +24,19 @@ import reactor.core.publisher.Mono;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.data.redis.connection.RedisClusterNode;
 
 /**
  * @author Christoph Strobl
  */
-public class LettuceReactiveClusterKeyCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterKeyCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
 
-	static final RedisClusterNode NODE_1 = newRedisClusterNode().listeningAt("127.0.0.1", 7379).build();
+	private static final RedisClusterNode NODE_1 = newRedisClusterNode().listeningAt("127.0.0.1", 7379).build();
 
 	@Test // DATAREDIS-525
-	public void keysShouldReturnOnlyKeysFromSelectedNode() {
+	void keysShouldReturnOnlyKeysFromSelectedNode() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 		nativeCommands.set(KEY_2, VALUE_2);
@@ -47,7 +47,7 @@ public class LettuceReactiveClusterKeyCommandsTests extends LettuceReactiveClust
 	}
 
 	@Test // DATAREDIS-525
-	public void randomkeyShouldReturnOnlyKeysFromSelectedNode() {
+	void randomkeyShouldReturnOnlyKeysFromSelectedNode() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 		nativeCommands.set(KEY_2, VALUE_2);

@@ -20,15 +20,15 @@ import static org.springframework.data.redis.connection.lettuce.LettuceReactiveC
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Christoph Strobl
  */
-public class LettuceReactiveClusterHyperLogLogCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterHyperLogLogCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
 
 	@Test // DATAREDIS-525
-	public void pfCountWithMultipleKeysShouldReturnCorrectlyWhenKeysMapToSameSlot() {
+	void pfCountWithMultipleKeysShouldReturnCorrectlyWhenKeysMapToSameSlot() {
 
 		nativeCommands.pfadd(SAME_SLOT_KEY_1, new String[] { VALUE_1, VALUE_2 });
 		nativeCommands.pfadd(SAME_SLOT_KEY_2, new String[] { VALUE_2, VALUE_3 });
@@ -38,7 +38,7 @@ public class LettuceReactiveClusterHyperLogLogCommandsTests extends LettuceReact
 	}
 
 	@Test // DATAREDIS-525
-	public void pfMergeShouldWorkCorrectlyWhenKeysMapToSameSlot() {
+	void pfMergeShouldWorkCorrectlyWhenKeysMapToSameSlot() {
 
 		nativeCommands.pfadd(SAME_SLOT_KEY_1, new String[] { VALUE_1, VALUE_2 });
 		nativeCommands.pfadd(SAME_SLOT_KEY_2, new String[] { VALUE_2, VALUE_3 });

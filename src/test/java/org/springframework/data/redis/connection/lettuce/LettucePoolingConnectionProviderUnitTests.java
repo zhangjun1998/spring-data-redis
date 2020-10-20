@@ -20,35 +20,35 @@ import static org.mockito.Mockito.*;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Unit tests for {@link LettucePoolingConnectionProvider}.
  *
  * @author Mark Paluch
  */
-@RunWith(MockitoJUnitRunner.class)
-public class LettucePoolingConnectionProviderUnitTests {
+@ExtendWith(MockitoExtension.class)
+class LettucePoolingConnectionProviderUnitTests {
 
 	@Mock LettuceConnectionProvider connectionProviderMock;
 	@Mock StatefulRedisConnection<byte[], byte[]> connectionMock;
 	@Mock RedisAsyncCommands<byte[], byte[]> commandsMock;
 
-	LettucePoolingClientConfiguration config = LettucePoolingClientConfiguration.defaultConfiguration();
+	private LettucePoolingClientConfiguration config = LettucePoolingClientConfiguration.defaultConfiguration();
 
-	@Before
-	public void before() {
+	@BeforeEach
+	void before() {
 
 		when(connectionMock.async()).thenReturn(commandsMock);
 		when(connectionProviderMock.getConnection(any())).thenReturn(connectionMock);
 	}
 
 	@Test // DATAREDIS-988
-	public void shouldReturnConnectionOnRelease() {
+	void shouldReturnConnectionOnRelease() {
 
 		LettucePoolingConnectionProvider provider = new LettucePoolingConnectionProvider(connectionProviderMock, config);
 
@@ -58,7 +58,7 @@ public class LettucePoolingConnectionProviderUnitTests {
 	}
 
 	@Test // DATAREDIS-988
-	public void shouldDiscardTransactionOnReleaseOnActiveTransaction() {
+	void shouldDiscardTransactionOnReleaseOnActiveTransaction() {
 
 		LettucePoolingConnectionProvider provider = new LettucePoolingConnectionProvider(connectionProviderMock, config);
 		when(connectionMock.isMulti()).thenReturn(true);

@@ -17,11 +17,11 @@ package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 import java.nio.ByteBuffer;
 
-import org.junit.Test;
 import org.springframework.data.redis.connection.ReactiveClusterCommands;
 import org.springframework.data.redis.connection.RedisClusterNode;
 
@@ -34,21 +34,21 @@ import org.springframework.data.redis.connection.RedisClusterNode;
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-public class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
 
 	@Test // DATAREDIS-1150
-	public void pingShouldReturnPong() {
+	void pingShouldReturnPong() {
 		connection.ping().as(StepVerifier::create).expectNext("PONG").verifyComplete();
 	}
 
 	@Test // DATAREDIS-1150
-	public void pingShouldReturnPongForServers() {
+	void pingShouldReturnPongForServers() {
 		connection.clusterGetNodes().flatMap(connection::ping).as(StepVerifier::create)
 				.expectNext("PONG", "PONG", "PONG", "PONG").verifyComplete();
 	}
 
 	@Test // DATAREDIS-1150
-	public void clusterGetNodesShouldReturnNodes() {
+	void clusterGetNodesShouldReturnNodes() {
 
 		connection.clusterGetNodes().collectList() //
 				.as(StepVerifier::create) //
@@ -59,7 +59,7 @@ public class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterC
 	}
 
 	@Test // DATAREDIS-1150
-	public void clusterGetSlavesShouldReturnNodes() {
+	void clusterGetSlavesShouldReturnNodes() {
 
 		connection.clusterGetNodes().filter(RedisClusterNode::isMaster)
 				.filter(node -> (node.getPort() == 7379 || node.getPort() == 7382))
@@ -73,7 +73,7 @@ public class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterC
 	}
 
 	@Test // DATAREDIS-1150
-	public void clusterGetMasterSlaveMapShouldReportTopology() {
+	void clusterGetMasterSlaveMapShouldReportTopology() {
 
 		connection.clusterGetMasterSlaveMap() //
 				.as(StepVerifier::create) //
@@ -84,7 +84,7 @@ public class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterC
 	}
 
 	@Test // DATAREDIS-1150
-	public void clusterGetSlotForKeyShouldResolveSlot() {
+	void clusterGetSlotForKeyShouldResolveSlot() {
 
 		connection.clusterGetSlotForKey(ByteBuffer.wrap("hello".getBytes())) //
 				.as(StepVerifier::create) //
@@ -93,7 +93,7 @@ public class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterC
 	}
 
 	@Test // DATAREDIS-1150
-	public void clusterGetNodeForSlotShouldReportNode() {
+	void clusterGetNodeForSlotShouldReportNode() {
 
 		connection.clusterGetNodeForSlot(866) //
 				.as(StepVerifier::create) //
@@ -104,7 +104,7 @@ public class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterC
 	}
 
 	@Test // DATAREDIS-1150
-	public void clusterGetNodeForKeyShouldReportNode() {
+	void clusterGetNodeForKeyShouldReportNode() {
 
 		connection.clusterGetNodeForKey(ByteBuffer.wrap("hello".getBytes())) //
 				.as(StepVerifier::create) //
@@ -115,7 +115,7 @@ public class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterC
 	}
 
 	@Test // DATAREDIS-1150
-	public void clusterGetClusterInfoShouldReportState() {
+	void clusterGetClusterInfoShouldReportState() {
 
 		connection.clusterGetClusterInfo() //
 				.as(StepVerifier::create) //

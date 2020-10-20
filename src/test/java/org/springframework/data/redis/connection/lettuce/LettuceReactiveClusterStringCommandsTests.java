@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.data.redis.connection.RedisStringCommands;
 
@@ -31,10 +31,10 @@ import org.springframework.data.redis.connection.RedisStringCommands;
  * @author Christoph Strobl
  * @since 2.0
  */
-public class LettuceReactiveClusterStringCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterStringCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
 
 	@Test // DATAREDIS-525
-	public void mSetNXShouldAddMultipleKeyValueParisWhenMappedToSameSlot() {
+	void mSetNXShouldAddMultipleKeyValueParisWhenMappedToSameSlot() {
 
 		Map<ByteBuffer, ByteBuffer> map = new LinkedHashMap<>();
 		map.put(SAME_SLOT_KEY_1_BBUFFER, VALUE_1_BBUFFER);
@@ -47,7 +47,7 @@ public class LettuceReactiveClusterStringCommandsTests extends LettuceReactiveCl
 	}
 
 	@Test // DATAREDIS-525
-	public void mSetNXShouldNotAddMultipleKeyValueParisWhenAlreadyExitAndMapToSameSlot() {
+	void mSetNXShouldNotAddMultipleKeyValueParisWhenAlreadyExitAndMapToSameSlot() {
 
 		nativeCommands.set(SAME_SLOT_KEY_2, VALUE_2);
 
@@ -62,7 +62,7 @@ public class LettuceReactiveClusterStringCommandsTests extends LettuceReactiveCl
 	}
 
 	@Test // DATAREDIS-525
-	public void bitOpAndShouldWorkAsExpectedWhenKeysMapToSameSlot() {
+	void bitOpAndShouldWorkAsExpectedWhenKeysMapToSameSlot() {
 
 		nativeCommands.set(SAME_SLOT_KEY_1, VALUE_1);
 		nativeCommands.set(SAME_SLOT_KEY_2, VALUE_2);
@@ -73,7 +73,7 @@ public class LettuceReactiveClusterStringCommandsTests extends LettuceReactiveCl
 	}
 
 	@Test // DATAREDIS-525
-	public void bitOpOrShouldWorkAsExpectedWhenKeysMapToSameSlot() {
+	void bitOpOrShouldWorkAsExpectedWhenKeysMapToSameSlot() {
 
 		nativeCommands.set(SAME_SLOT_KEY_1, VALUE_1);
 		nativeCommands.set(SAME_SLOT_KEY_2, VALUE_2);
@@ -84,7 +84,7 @@ public class LettuceReactiveClusterStringCommandsTests extends LettuceReactiveCl
 	}
 
 	@Test // DATAREDIS-525
-	public void bitNotShouldThrowExceptionWhenMoreThanOnSourceKeyAndKeysMapToSameSlot() {
+	void bitNotShouldThrowExceptionWhenMoreThanOnSourceKeyAndKeysMapToSameSlot() {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> connection.stringCommands().bitOp(Arrays.asList(SAME_SLOT_KEY_1_BBUFFER, SAME_SLOT_KEY_2_BBUFFER),
 						RedisStringCommands.BitOperation.NOT, SAME_SLOT_KEY_3_BBUFFER).block());

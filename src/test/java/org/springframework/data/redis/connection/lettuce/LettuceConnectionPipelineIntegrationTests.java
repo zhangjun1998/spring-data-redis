@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.awaitility.Awaitility;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisVersionUtils;
@@ -33,9 +33,9 @@ import org.springframework.data.redis.connection.DefaultStringRedisConnection;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.test.extension.LettuceTestClientResources;
-import org.springframework.data.redis.test.util.RelaxedJUnit4ClassRunner;
 import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration test of {@link LettuceConnection} pipeline functionality
@@ -45,7 +45,7 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-@RunWith(RelaxedJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("LettuceConnectionIntegrationTests-context.xml")
 public class LettuceConnectionPipelineIntegrationTests extends AbstractConnectionPipelineIntegrationTests {
 
@@ -58,7 +58,6 @@ public class LettuceConnectionPipelineIntegrationTests extends AbstractConnectio
 	@IfProfileValue(name = "runLongTests", value = "true")
 	public void testScriptKill() throws Exception {
 		getResults();
-		assumeTrue(RedisVersionUtils.atLeast("2.6", byteConnection));
 		initConnection();
 		final AtomicBoolean scriptDead = new AtomicBoolean(false);
 		Thread th = new Thread(() -> {
