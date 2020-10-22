@@ -28,6 +28,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -154,7 +155,7 @@ public class JedisConnectionIntegrationTests extends AbstractConnectionIntegrati
 	@Test
 	public void testEvalArrayScriptError() {
 		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-				.isThrownBy(() -> super.testEvalArrayScriptError());
+				.isThrownBy(() -> connection.eval("return {1,2", ReturnType.MULTI, 1, "foo", "bar"));
 	}
 
 	@Test
@@ -165,28 +166,36 @@ public class JedisConnectionIntegrationTests extends AbstractConnectionIntegrati
 
 	@Test
 	public void testEvalShaArrayError() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> super.testEvalShaArrayError());
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+				.isThrownBy(() -> connection.evalSha("notasha", ReturnType.MULTI, 1, "key1", "arg1"));
 	}
 
 	@Test
 	public void testRestoreBadData() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> super.testRestoreBadData());
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+				.isThrownBy(() -> connection.restore("testing".getBytes(), 0, "foo".getBytes()));
 	}
 
 	@Test
+	@Disabled
 	public void testRestoreExistingKey() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-				.isThrownBy(() -> super.testRestoreExistingKey());
 	}
 
 	@Test
 	public void testExecWithoutMulti() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> super.testExecWithoutMulti());
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> connection.exec());
 	}
 
 	@Test
 	public void testErrorInTx() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> super.testErrorInTx());
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> {
+			connection.multi();
+			connection.set("foo", "bar");
+			// Try to do a list op on a value
+			connection.lPop("foo");
+			connection.exec();
+			getResults();
+		});
 	}
 
 	/**

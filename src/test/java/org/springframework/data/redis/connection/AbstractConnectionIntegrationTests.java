@@ -319,7 +319,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	public void testEvalArrayScriptError() {
 		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
 			// Syntax error
-		connection.eval("return {1,2", ReturnType.MULTI, 1, "foo", "bar");
+			connection.eval("return {1,2", ReturnType.MULTI, 1, "foo", "bar");
 			getResults();
 		});
 	}
@@ -750,10 +750,10 @@ public abstract class AbstractConnectionIntegrationTests {
 	public void testErrorInTx() {
 		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
 			connection.multi();
-		connection.set("foo", "bar");
-		// Try to do a list op on a value
-		connection.lPop("foo");
-		connection.exec();
+			connection.set("foo", "bar");
+			// Try to do a list op on a value
+			connection.lPop("foo");
+			connection.exec();
 			getResults();
 		});
 	}
@@ -1036,7 +1036,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	public void testRestoreBadData() {
 		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
 			// Use something other than dump-specific serialization
-		connection.restore("testing".getBytes(), 0, "foo".getBytes());
+			connection.restore("testing".getBytes(), 0, "foo".getBytes());
 			getResults();
 		});
 	}

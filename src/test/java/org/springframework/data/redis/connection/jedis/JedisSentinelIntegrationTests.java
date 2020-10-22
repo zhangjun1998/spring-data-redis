@@ -22,6 +22,7 @@ import redis.clients.jedis.Jedis;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -53,47 +54,11 @@ public class JedisSentinelIntegrationTests extends AbstractConnectionIntegration
 	}
 
 	@Test
-	public void testEvalReturnSingleError() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-				.isThrownBy(() -> connection.eval("return redis.call('expire','foo')", ReturnType.BOOLEAN, 0));
-	}
-
-	@Test
 	public void testEvalArrayScriptError() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-				.isThrownBy(super::testEvalArrayScriptError);
-	}
-
-	@Test
-	public void testEvalShaNotFound() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-				.isThrownBy(() -> connection.evalSha("somefakesha", ReturnType.VALUE, 2, "key1", "key2"));
-	}
-
-	@Test
-	public void testEvalShaArrayError() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testEvalShaArrayError);
-	}
-
-	@Test
-	public void testRestoreBadData() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testRestoreBadData);
-	}
-
-	@Test
-	public void testRestoreExistingKey() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
-				.isThrownBy(super::testRestoreExistingKey);
-	}
-
-	@Test
-	public void testExecWithoutMulti() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testExecWithoutMulti);
-	}
-
-	@Test
-	public void testErrorInTx() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testErrorInTx);
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> {
+			// Syntax error
+			connection.eval("return {1,2", ReturnType.MULTI, 1, "foo", "bar");
+		});
 	}
 
 	@Test // DATAREDIS-330
@@ -125,4 +90,38 @@ public class JedisSentinelIntegrationTests extends AbstractConnectionIntegration
 		assertThat(jedis.clientGetname()).isEqualTo("jedis-client");
 	}
 
+	@Test
+	@Disabled
+	@Override
+	public void testRestoreExistingKey() {}
+
+	@Test
+	@Disabled
+	@Override
+	public void testRestoreBadData() {}
+
+	@Test
+	@Disabled
+	@Override
+	public void testEvalShaArrayError() {}
+
+	@Test
+	@Disabled
+	@Override
+	public void testEvalReturnSingleError() {}
+
+	@Test
+	@Disabled
+	@Override
+	public void testEvalShaNotFound() {}
+
+	@Test
+	@Disabled
+	@Override
+	public void testErrorInTx() {}
+
+	@Test
+	@Disabled
+	@Override
+	public void testExecWithoutMulti() {}
 }

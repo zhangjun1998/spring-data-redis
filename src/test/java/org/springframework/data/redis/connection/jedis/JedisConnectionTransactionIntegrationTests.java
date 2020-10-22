@@ -22,9 +22,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.redis.connection.AbstractConnectionTransactionIntegrationTests;
-import org.springframework.test.annotation.IfProfileValue;
+import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -60,124 +59,125 @@ public class JedisConnectionTransactionIntegrationTests extends AbstractConnecti
 
 	// Unsupported Ops
 	@Test
+	@Disabled
 	public void testScriptLoadEvalSha() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testScriptLoadEvalSha);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalShaArrayStrings() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaArrayStrings);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalShaArrayBytes() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaArrayBytes);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalShaNotFound() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaNotFound);
 	}
 
 	@Test
 	public void testEvalShaArrayError() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalShaArrayError);
+		assertThatExceptionOfType(UnsupportedOperationException.class)
+				.isThrownBy(() -> connection.evalSha("notasha", ReturnType.MULTI, 1, "key1", "arg1"));
 	}
 
 	@Test
 	public void testEvalArrayScriptError() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalArrayScriptError);
+		assertThatExceptionOfType(UnsupportedOperationException.class)
+				.isThrownBy(() -> connection.eval("return {1,2", ReturnType.MULTI, 1, "foo", "bar"));
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnString() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnString);
 	}
 
 	@Test
-	@IfProfileValue(name = "redisVersion", value = "2.6+")
+	@Disabled
 	public void testEvalReturnNumber() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnNumber);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnSingleOK() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnSingleOK);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnSingleError() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnSingleError);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnFalse() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnFalse);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnTrue() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnTrue);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnArrayStrings() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayStrings);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnArrayNumbers() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayNumbers);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnArrayOKs() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayOKs);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnArrayFalses() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayFalses);
 	}
 
 	@Test
+	@Disabled
 	public void testEvalReturnArrayTrues() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testEvalReturnArrayTrues);
 	}
 
 	@Test
+	@Disabled
 	public void testScriptExists() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testScriptExists);
 	}
 
 	@Test
+	@Disabled
 	public void testScriptKill() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> connection.scriptKill());
 	}
 
 	@Test
+	@Disabled
 	public void testScriptFlush() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> connection.scriptFlush());
 	}
 
 	@Test
+	@Disabled
 	public void testInfoBySection() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::testInfoBySection);
 	}
 
 	@Test
+	@Disabled
 	public void testRestoreBadData() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testRestoreBadData);
 	}
 
 	@Test
+	@Disabled
 	public void testRestoreExistingKey() {
-		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(super::testRestoreExistingKey);
 	}
 
 	@Test // DATAREDIS-269
+	@Disabled
 	public void clientSetNameWorksCorrectly() {
-		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::clientSetNameWorksCorrectly);
 	}
 
 	@Test
