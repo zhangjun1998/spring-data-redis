@@ -18,35 +18,39 @@ package org.springframework.data.redis.connection.lettuce;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.data.Offset.offset;
 
-import org.junit.Test;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * @author Christoph Strobl
  */
-public class LettuceReactiveNumberCommandsTests extends LettuceReactiveCommandsTestsBase {
+public class LettuceReactiveNumberCommandsIntegrationTests extends LettuceReactiveCommandsTestSupport {
 
-	@Test // DATAREDIS-525
-	public void incrByDoubleShouldIncreaseValueCorrectly() {
+	public LettuceReactiveNumberCommandsIntegrationTests(Fixture fixture) {
+		super(fixture);
+	}
+
+	@ParameterizedRedisTest // DATAREDIS-525
+	void incrByDoubleShouldIncreaseValueCorrectly() {
 		assertThat(connection.numberCommands().incrBy(KEY_1_BBUFFER, 1.5D).block()).isCloseTo(1.5D, offset(0D));
 	}
 
-	@Test // DATAREDIS-525
-	public void incrByIntegerShouldIncreaseValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void incrByIntegerShouldIncreaseValueCorrectly() {
 		assertThat(connection.numberCommands().incrBy(KEY_1_BBUFFER, 3).block()).isEqualTo(3);
 	}
 
-	@Test // DATAREDIS-525
-	public void decrByDoubleShouldDecreaseValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void decrByDoubleShouldDecreaseValueCorrectly() {
 		assertThat(connection.numberCommands().decrBy(KEY_1_BBUFFER, 1.5D).block()).isCloseTo(-1.5D, offset(0D));
 	}
 
-	@Test // DATAREDIS-525
-	public void decrByIntegerShouldDecreaseValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void decrByIntegerShouldDecreaseValueCorrectly() {
 		assertThat(connection.numberCommands().decrBy(KEY_1_BBUFFER, 3).block()).isEqualTo(-3);
 	}
 
-	@Test // DATAREDIS-525
-	public void hIncrByDoubleShouldIncreaseValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void hIncrByDoubleShouldIncreaseValueCorrectly() {
 
 		nativeCommands.hset(KEY_1, KEY_1, "2");
 
@@ -54,8 +58,8 @@ public class LettuceReactiveNumberCommandsTests extends LettuceReactiveCommandsT
 				offset(0D));
 	}
 
-	@Test // DATAREDIS-525
-	public void hIncrByIntegerShouldIncreaseValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void hIncrByIntegerShouldIncreaseValueCorrectly() {
 
 		nativeCommands.hset(KEY_1, KEY_1, "2");
 

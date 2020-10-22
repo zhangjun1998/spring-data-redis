@@ -16,7 +16,6 @@
 package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
 
 import io.lettuce.core.XReadArgs;
 import reactor.test.StepVerifier;
@@ -25,19 +24,18 @@ import java.time.Duration;
 import java.util.Collections;
 
 import org.assertj.core.data.Offset;
-import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
 
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.RedisSystemException;
-import org.springframework.data.redis.RedisTestProfileValueSource;
 import org.springframework.data.redis.connection.RedisStreamCommands.XClaimOptions;
 import org.springframework.data.redis.connection.RedisZSetCommands.Limit;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamOffset;
+import org.springframework.data.redis.test.condition.EnabledOnCommand;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * Integration tests for {@link LettuceReactiveStreamCommands}.
@@ -47,15 +45,15 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
  * @author Tugdual Grall
  * @author Dengliming
  */
-public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsTestsBase {
+@EnabledOnCommand("XADD")
+public class LettuceReactiveStreamCommandsIntegrationTests extends LettuceReactiveCommandsTestSupport {
 
-	@Before
-	public void before() {
-		assumeTrue(RedisTestProfileValueSource.atLeast("redisVersion", "5.0"));
+	public LettuceReactiveStreamCommandsIntegrationTests(Fixture fixture) {
+		super(fixture);
 	}
 
-	@Test // DATAREDIS-864
-	public void xAddShouldAddMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xAddShouldAddMessage() {
 
 		connection.streamCommands().xAdd(KEY_1_BBUFFER, Collections.singletonMap(KEY_2_BBUFFER, VALUE_2_BBUFFER)) //
 				.as(StepVerifier::create) //
@@ -68,8 +66,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xDelShouldRemoveMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xDelShouldRemoveMessage() {
 
 		RecordId messageId = connection.streamCommands()
 				.xAdd(KEY_1_BBUFFER, Collections.singletonMap(KEY_2_BBUFFER, VALUE_2_BBUFFER)).block();
@@ -85,8 +83,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xRangeShouldReportMessages() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xRangeShouldReportMessages() {
 
 		connection.streamCommands().xAdd(KEY_1_BBUFFER, Collections.singletonMap(KEY_1_BBUFFER, VALUE_1_BBUFFER)) //
 				.as(StepVerifier::create) //
@@ -118,8 +116,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xReadShouldReadMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xReadShouldReadMessage() {
 
 		connection.streamCommands().xAdd(KEY_1_BBUFFER, Collections.singletonMap(KEY_1_BBUFFER, VALUE_1_BBUFFER)) //
 				.as(StepVerifier::create) //
@@ -136,8 +134,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xReadGroupShouldReadMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xReadGroupShouldReadMessage() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -156,8 +154,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xRevRangeShouldReportMessages() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xRevRangeShouldReportMessages() {
 
 		connection.streamCommands().xAdd(KEY_1_BBUFFER, Collections.singletonMap(KEY_1_BBUFFER, VALUE_1_BBUFFER)) //
 				.as(StepVerifier::create) //
@@ -179,8 +177,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xGroupCreateShouldCreateGroup() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xGroupCreateShouldCreateGroup() {
 
 		nativeCommands.xadd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2));
 
@@ -190,8 +188,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xGroupCreateShouldCreateGroupBeforeStream() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xGroupCreateShouldCreateGroupBeforeStream() {
 		connection.streamCommands().xGroupCreate(KEY_1_BBUFFER, "group-1", ReadOffset.latest(), false)
 				.as(StepVerifier::create) //
 				.expectError(RedisSystemException.class) //
@@ -203,9 +201,9 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
+	@ParameterizedRedisTest // DATAREDIS-864
 	@Ignore("commands sent correctly - however lettuce returns false")
-	public void xGroupDelConsumerShouldRemoveConsumer() {
+	void xGroupDelConsumerShouldRemoveConsumer() {
 
 		String id = nativeCommands.xadd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2));
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, id), "group-1");
@@ -218,8 +216,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-864
-	public void xGroupDestroyShouldDestroyGroup() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void xGroupDestroyShouldDestroyGroup() {
 
 		String id = nativeCommands.xadd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2));
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, id), "group-1");
@@ -229,8 +227,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-1084
-	public void xPendingShouldLoadOverviewCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void xPendingShouldLoadOverviewCorrectly() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -254,8 +252,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 		}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1084
-	public void xPendingShouldLoadEmptyOverviewCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void xPendingShouldLoadEmptyOverviewCorrectly() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -271,8 +269,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 		}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1084
-	public void xPendingShouldLoadPendingMessages() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void xPendingShouldLoadPendingMessages() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -296,8 +294,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1084
-	public void xPendingShouldLoadPendingMessagesForConsumer() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void xPendingShouldLoadPendingMessagesForConsumer() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -321,8 +319,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1084
-	public void xPendingShouldLoadPendingMessagesForNonExistingConsumer() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void xPendingShouldLoadPendingMessagesForNonExistingConsumer() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -342,8 +340,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1084
-	public void xPendingShouldLoadEmptyPendingMessages() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void xPendingShouldLoadEmptyPendingMessages() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -356,8 +354,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1084
-	public void xClaim() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void xClaim() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");
@@ -378,8 +376,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-1119
-	public void xinfo() {
+	@ParameterizedRedisTest // DATAREDIS-1119
+	void xinfo() {
 
 		String firstRecord = nativeCommands.xadd(KEY_1, KEY_2, VALUE_2);
 		String lastRecord = nativeCommands.xadd(KEY_1, KEY_3, VALUE_3);
@@ -399,8 +397,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1119
-	public void xinfoNoGroup() {
+	@ParameterizedRedisTest // DATAREDIS-1119
+	void xinfoNoGroup() {
 
 		String firstRecord = nativeCommands.xadd(KEY_1, KEY_2, VALUE_2);
 		String lastRecord = nativeCommands.xadd(KEY_1, KEY_3, VALUE_3);
@@ -417,8 +415,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1119
-	public void xinfoGroups() {
+	@ParameterizedRedisTest // DATAREDIS-1119
+	void xinfoGroups() {
 
 		nativeCommands.xadd(KEY_1, KEY_2, VALUE_2);
 		String lastRecord = nativeCommands.xadd(KEY_1, KEY_3, VALUE_3);
@@ -435,8 +433,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1119
-	public void xinfoGroupsNoGroup() {
+	@ParameterizedRedisTest // DATAREDIS-1119
+	void xinfoGroupsNoGroup() {
 
 		nativeCommands.xadd(KEY_1, KEY_2, VALUE_2);
 		String lastRecord = nativeCommands.xadd(KEY_1, KEY_3, VALUE_3);
@@ -445,8 +443,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-1119
-	public void xinfoGroupsNoConsumer() {
+	@ParameterizedRedisTest // DATAREDIS-1119
+	void xinfoGroupsNoConsumer() {
 
 		nativeCommands.xadd(KEY_1, KEY_2, VALUE_2);
 		String lastRecord = nativeCommands.xadd(KEY_1, KEY_3, VALUE_3);
@@ -461,8 +459,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1119
-	public void xinfoConsumers() {
+	@ParameterizedRedisTest // DATAREDIS-1119
+	void xinfoConsumers() {
 
 		nativeCommands.xadd(KEY_1, KEY_2, VALUE_2);
 		nativeCommands.xadd(KEY_1, KEY_3, VALUE_3);
@@ -479,8 +477,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 				}).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1119
-	public void xinfoConsumersNoConsumer() {
+	@ParameterizedRedisTest // DATAREDIS-1119
+	void xinfoConsumersNoConsumer() {
 
 		nativeCommands.xadd(KEY_1, KEY_2, VALUE_2);
 		nativeCommands.xadd(KEY_1, KEY_3, VALUE_3);
@@ -489,8 +487,8 @@ public class LettuceReactiveStreamCommandsTests extends LettuceReactiveCommandsT
 		connection.streamCommands().xInfoConsumers(KEY_1_BBUFFER, "my-group").as(StepVerifier::create).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1226
-	public void xClaimJustId() {
+	@ParameterizedRedisTest // DATAREDIS-1226
+	void xClaimJustId() {
 
 		String initialMessage = nativeCommands.xadd(KEY_1, KEY_1, VALUE_1);
 		nativeCommands.xgroupCreate(XReadArgs.StreamOffset.from(KEY_1, initialMessage), "my-group");

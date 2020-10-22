@@ -15,7 +15,7 @@
  */
 package org.springframework.data.redis.connection.lettuce;
 
-import static org.junit.Assume.*;
+import static org.assertj.core.api.Assumptions.*;
 
 import io.lettuce.core.ScriptOutputType;
 import reactor.test.StepVerifier;
@@ -27,22 +27,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.awaitility.Awaitility;
-import org.junit.Test;
 
 import org.springframework.data.redis.RedisSystemException;
-import org.springframework.data.redis.connection.ReactiveRedisClusterConnection;
 import org.springframework.data.redis.connection.ReturnType;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveCommandsTestsBase {
+public class LettuceReactiveScriptingCommandsIntegrationTests extends LettuceReactiveCommandsTestSupport {
 
-	@Test // DATAREDIS-683
-	public void scriptExistsShouldReturnState() {
+	public LettuceReactiveScriptingCommandsIntegrationTests(Fixture fixture) {
+		super(fixture);
+	}
 
-		assumeFalse(connection instanceof ReactiveRedisClusterConnection);
+	@ParameterizedRedisTest // DATAREDIS-683
+	void scriptExistsShouldReturnState() {
+
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		String sha1 = nativeCommands.scriptLoad("return KEYS[1]");
 
@@ -52,10 +55,10 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-683
-	public void scriptFlushShouldRemoveScripts() {
+	@ParameterizedRedisTest // DATAREDIS-683
+	void scriptFlushShouldRemoveScripts() {
 
-		assumeFalse(connection instanceof ReactiveRedisClusterConnection);
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		String sha1 = nativeCommands.scriptLoad("return KEYS[1]");
 
@@ -72,10 +75,10 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-683
-	public void evalShaShouldReturnKey() {
+	@ParameterizedRedisTest // DATAREDIS-683
+	void evalShaShouldReturnKey() {
 
-		assumeFalse(connection instanceof ReactiveRedisClusterConnection);
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		String sha1 = nativeCommands.scriptLoad("return KEYS[1]");
 
@@ -86,10 +89,10 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-683, DATAREDIS-711
-	public void evalShaShouldReturnMulti() {
+	@ParameterizedRedisTest // DATAREDIS-683, DATAREDIS-711
+	void evalShaShouldReturnMulti() {
 
-		assumeFalse(connection instanceof ReactiveRedisClusterConnection);
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		String sha1 = nativeCommands.scriptLoad("return {KEYS[1],ARGV[1]}");
 
@@ -100,10 +103,10 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-683
-	public void evalShaShouldFail() {
+	@ParameterizedRedisTest // DATAREDIS-683
+	void evalShaShouldFail() {
 
-		assumeFalse(connection instanceof ReactiveRedisClusterConnection);
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		connection.scriptingCommands().evalSha("foo", ReturnType.VALUE, 1, SAME_SLOT_KEY_1_BBUFFER.duplicate())
 				.as(StepVerifier::create) //
@@ -111,8 +114,8 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verify();
 	}
 
-	@Test // DATAREDIS-683
-	public void evalShouldReturnStatus() {
+	@ParameterizedRedisTest // DATAREDIS-683
+	void evalShouldReturnStatus() {
 
 		ByteBuffer script = wrap(String.format("return redis.call('set','%s','ghk')", SAME_SLOT_KEY_1));
 
@@ -122,8 +125,8 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-683
-	public void evalShouldReturnBooleanFalse() {
+	@ParameterizedRedisTest // DATAREDIS-683
+	void evalShouldReturnBooleanFalse() {
 
 		ByteBuffer script = wrap("return false");
 
@@ -132,8 +135,8 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-683, DATAREDIS-711
-	public void evalShouldReturnMultiNumbers() {
+	@ParameterizedRedisTest // DATAREDIS-683, DATAREDIS-711
+	void evalShouldReturnMultiNumbers() {
 
 		ByteBuffer script = wrap("return {1,2}");
 
@@ -142,8 +145,8 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-683
-	public void evalShouldFailWithScriptError() {
+	@ParameterizedRedisTest // DATAREDIS-683
+	void evalShouldFailWithScriptError() {
 
 		ByteBuffer script = wrap("return {1,2");
 
@@ -152,10 +155,10 @@ public class LettuceReactiveScriptingCommandsTests extends LettuceReactiveComman
 				.verify();
 	}
 
-	@Test // DATAREDIS-683
-	public void scriptKillShouldKillScripts() throws Exception {
+	@ParameterizedRedisTest // DATAREDIS-683
+	void scriptKillShouldKillScripts() throws Exception {
 
-		assumeFalse(connection instanceof ReactiveRedisClusterConnection);
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		AtomicBoolean scriptDead = new AtomicBoolean(false);
 		CountDownLatch sync = new CountDownLatch(1);

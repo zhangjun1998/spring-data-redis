@@ -15,32 +15,33 @@
  */
 package org.springframework.data.redis.connection.lettuce;
 
+import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import io.lettuce.core.codec.StringCodec;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.springframework.data.redis.connection.lettuce.LettuceReactiveRedisConnection.ByteBufferCodec;
-import org.springframework.data.redis.test.util.LettuceRedisClientProvider;
-import org.springframework.data.redis.test.util.LettuceRedisClusterClientProvider;
+import org.springframework.data.redis.test.extension.LettuceExtension;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 
 /**
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-@RunWith(Parameterized.class)
-public abstract class LettuceReactiveCommandsTestsBase {
+@MethodSource("parameters")
+public abstract class LettuceReactiveCommandsTestSupport {
 
 	static final String KEY_1 = "key-1";
 	static final String KEY_2 = "key-2";
@@ -52,15 +53,15 @@ public abstract class LettuceReactiveCommandsTestsBase {
 	static final String VALUE_2 = "value-2";
 	static final String VALUE_3 = "value-3";
 
-	static final byte[] SAME_SLOT_KEY_1_BYTES = SAME_SLOT_KEY_1.getBytes(Charset.forName("UTF-8"));
-	static final byte[] SAME_SLOT_KEY_2_BYTES = SAME_SLOT_KEY_2.getBytes(Charset.forName("UTF-8"));
-	static final byte[] SAME_SLOT_KEY_3_BYTES = SAME_SLOT_KEY_3.getBytes(Charset.forName("UTF-8"));
-	static final byte[] KEY_1_BYTES = KEY_1.getBytes(Charset.forName("UTF-8"));
-	static final byte[] KEY_2_BYTES = KEY_2.getBytes(Charset.forName("UTF-8"));
-	static final byte[] KEY_3_BYTES = KEY_3.getBytes(Charset.forName("UTF-8"));
-	static final byte[] VALUE_1_BYTES = VALUE_1.getBytes(Charset.forName("UTF-8"));
-	static final byte[] VALUE_2_BYTES = VALUE_2.getBytes(Charset.forName("UTF-8"));
-	static final byte[] VALUE_3_BYTES = VALUE_3.getBytes(Charset.forName("UTF-8"));
+	static final byte[] SAME_SLOT_KEY_1_BYTES = SAME_SLOT_KEY_1.getBytes(StandardCharsets.UTF_8);
+	static final byte[] SAME_SLOT_KEY_2_BYTES = SAME_SLOT_KEY_2.getBytes(StandardCharsets.UTF_8);
+	static final byte[] SAME_SLOT_KEY_3_BYTES = SAME_SLOT_KEY_3.getBytes(StandardCharsets.UTF_8);
+	static final byte[] KEY_1_BYTES = KEY_1.getBytes(StandardCharsets.UTF_8);
+	static final byte[] KEY_2_BYTES = KEY_2.getBytes(StandardCharsets.UTF_8);
+	static final byte[] KEY_3_BYTES = KEY_3.getBytes(StandardCharsets.UTF_8);
+	static final byte[] VALUE_1_BYTES = VALUE_1.getBytes(StandardCharsets.UTF_8);
+	static final byte[] VALUE_2_BYTES = VALUE_2.getBytes(StandardCharsets.UTF_8);
+	static final byte[] VALUE_3_BYTES = VALUE_3.getBytes(StandardCharsets.UTF_8);
 
 	static final ByteBuffer KEY_1_BBUFFER = ByteBuffer.wrap(KEY_1_BYTES);
 	static final ByteBuffer SAME_SLOT_KEY_1_BBUFFER = ByteBuffer.wrap(SAME_SLOT_KEY_1_BYTES);
@@ -74,53 +75,79 @@ public abstract class LettuceReactiveCommandsTestsBase {
 	static final ByteBuffer SAME_SLOT_KEY_3_BBUFFER = ByteBuffer.wrap(SAME_SLOT_KEY_3_BYTES);
 	static final ByteBuffer VALUE_3_BBUFFER = ByteBuffer.wrap(VALUE_3_BYTES);
 
-	@Parameterized.Parameter(value = 0) public LettuceConnectionProvider connectionProvider;
-	@Parameterized.Parameter(value = 1) public LettuceConnectionProvider nativeConnectionProvider;
-	@Parameterized.Parameter(value = 2) public LettuceConnectionProvider nativeBinaryConnectionProvider;
-	@Parameterized.Parameter(value = 3) public Object displayName;
+	public final LettuceConnectionProvider connectionProvider;
+	public final LettuceConnectionProvider nativeConnectionProvider;
+	public final LettuceConnectionProvider nativeBinaryConnectionProvider;
 
 	LettuceReactiveRedisConnection connection;
 	RedisClusterCommands<String, String> nativeCommands;
 	RedisClusterCommands<ByteBuffer, ByteBuffer> nativeBinaryCommands;
 
-	@Parameterized.Parameters(name = "{3}")
-	public static List<Object[]> parameters() {
+	public LettuceReactiveCommandsTestSupport(Fixture fixture) {
+		this.connectionProvider = fixture.connectionProvider;
+		this.nativeConnectionProvider = fixture.nativeConnectionProvider;
+		this.nativeBinaryConnectionProvider = fixture.nativeBinaryConnectionProvider;
+	}
 
-		LettuceRedisClientProvider standalone = LettuceRedisClientProvider.local();
-		LettuceRedisClusterClientProvider cluster = LettuceRedisClusterClientProvider.local();
+	public static List<Fixture> parameters() {
 
-		List<Object[]> parameters = new ArrayList<>();
+		LettuceExtension extension = new LettuceExtension();
 
-		StandaloneConnectionProvider standaloneProvider = new StandaloneConnectionProvider(standalone.getClient(),
+		List<Fixture> parameters = new ArrayList<>();
+
+		StandaloneConnectionProvider standaloneProvider = new StandaloneConnectionProvider(
+				extension.getInstance(RedisClient.class),
 				LettuceReactiveRedisConnection.CODEC);
-		StandaloneConnectionProvider nativeConnectionProvider = new StandaloneConnectionProvider(standalone.getClient(),
+		StandaloneConnectionProvider nativeConnectionProvider = new StandaloneConnectionProvider(
+				extension.getInstance(RedisClient.class),
 				StringCodec.UTF8);
 		StandaloneConnectionProvider nativeBinaryConnectionProvider = new StandaloneConnectionProvider(
-				standalone.getClient(), ByteBufferCodec.INSTANCE);
+				extension.getInstance(RedisClient.class), ByteBufferCodec.INSTANCE);
 
 		parameters.add(
-				new Object[] { standaloneProvider, nativeConnectionProvider, nativeBinaryConnectionProvider, "Standalone" });
-		parameters.add(new Object[] {
+				new Fixture(standaloneProvider, nativeConnectionProvider, nativeBinaryConnectionProvider, "Standalone"));
+		parameters.add(new Fixture(
 				new LettucePoolingConnectionProvider(standaloneProvider, LettucePoolingClientConfiguration.builder().build()),
-				nativeConnectionProvider, nativeBinaryConnectionProvider, "Standalone/Pooled" });
+				nativeConnectionProvider, nativeBinaryConnectionProvider, "Pooling"));
 
-		if (cluster.test()) {
 
-			ClusterConnectionProvider clusterProvider = new ClusterConnectionProvider(cluster.getClient(),
+		ClusterConnectionProvider clusterProvider = new ClusterConnectionProvider(
+				extension.getInstance(RedisClusterClient.class),
 					LettuceReactiveRedisConnection.CODEC);
-			ClusterConnectionProvider nativeClusterConnectionProvider = new ClusterConnectionProvider(cluster.getClient(),
+		ClusterConnectionProvider nativeClusterConnectionProvider = new ClusterConnectionProvider(
+				extension.getInstance(RedisClusterClient.class),
 					StringCodec.UTF8);
 			ClusterConnectionProvider nativeBinaryClusterConnectionProvider = new ClusterConnectionProvider(
-					cluster.getClient(), ByteBufferCodec.INSTANCE);
+					extension.getInstance(RedisClusterClient.class), ByteBufferCodec.INSTANCE);
 
-			parameters.add(new Object[] { clusterProvider, nativeClusterConnectionProvider,
-					nativeBinaryClusterConnectionProvider, "Cluster" });
-		}
+			parameters.add(new Fixture(clusterProvider, nativeClusterConnectionProvider,
+					nativeBinaryClusterConnectionProvider, "Cluster"));
 
 		return parameters;
 	}
 
-	@Before
+	static class Fixture {
+
+		final LettuceConnectionProvider connectionProvider;
+		final LettuceConnectionProvider nativeConnectionProvider;
+		final LettuceConnectionProvider nativeBinaryConnectionProvider;
+		final String label;
+
+		Fixture(LettuceConnectionProvider connectionProvider, LettuceConnectionProvider nativeConnectionProvider,
+				LettuceConnectionProvider nativeBinaryConnectionProvider, String label) {
+			this.connectionProvider = connectionProvider;
+			this.nativeConnectionProvider = nativeConnectionProvider;
+			this.nativeBinaryConnectionProvider = nativeBinaryConnectionProvider;
+			this.label = label;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+	}
+
+	@BeforeEach
 	public void setUp() {
 
 		if (nativeConnectionProvider instanceof StandaloneConnectionProvider) {
@@ -137,7 +164,7 @@ public abstract class LettuceReactiveCommandsTestsBase {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 
 		if (nativeCommands != null) {

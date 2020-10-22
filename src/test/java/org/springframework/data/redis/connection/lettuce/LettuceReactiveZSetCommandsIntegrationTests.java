@@ -16,7 +16,7 @@
 package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
+import static org.assertj.core.api.Assumptions.*;
 import static org.springframework.data.domain.Range.Bound.*;
 
 import reactor.test.StepVerifier;
@@ -24,11 +24,10 @@ import reactor.test.StepVerifier;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import org.junit.Test;
-
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.DefaultTuple;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * Integration tests for {@link LettuceReactiveZSetCommands}.
@@ -37,7 +36,7 @@ import org.springframework.data.redis.core.ScanOptions;
  * @author Mark Paluch
  * @author Michele Mancioppi
  */
-public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTestsBase {
+public class LettuceReactiveZSetCommandsIntegrationTests extends LettuceReactiveCommandsTestSupport {
 
 	private static final Range<Long> ONE_TO_TWO = Range.closed(1L, 2L);
 
@@ -45,13 +44,17 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 	private static final Range<Double> TWO_INCLUSIVE_TO_THREE_EXCLUSIVE = Range.rightOpen(2D, 3D);
 	private static final Range<Double> TWO_EXCLUSIVE_TO_THREE_INCLUSIVE = Range.leftOpen(2D, 3D);
 
-	@Test // DATAREDIS-525
-	public void zAddShouldAddValuesWithScores() {
+	public LettuceReactiveZSetCommandsIntegrationTests(Fixture fixture) {
+		super(fixture);
+	}
+
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zAddShouldAddValuesWithScores() {
 		assertThat(connection.zSetCommands().zAdd(KEY_1_BBUFFER, 3.5D, VALUE_1_BBUFFER).block()).isEqualTo(1L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRemShouldRemoveValuesFromSet() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRemShouldRemoveValuesFromSet() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -61,16 +64,16 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zIncrByShouldInreaseAndReturnScore() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zIncrByShouldInreaseAndReturnScore() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 
 		assertThat(connection.zSetCommands().zIncrBy(KEY_1_BBUFFER, 3.5D, VALUE_1_BBUFFER).block()).isEqualTo(4.5D);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRankShouldReturnIndexCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRankShouldReturnIndexCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -79,8 +82,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zRank(KEY_1_BBUFFER, VALUE_3_BBUFFER).block()).isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRankShouldReturnIndexCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRankShouldReturnIndexCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -89,8 +92,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zRevRank(KEY_1_BBUFFER, VALUE_3_BBUFFER).block()).isEqualTo(0L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeShouldReturnValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeShouldReturnValuesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -101,8 +104,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeWithScoreShouldReturnTuplesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeWithScoreShouldReturnTuplesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -113,8 +116,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeShouldReturnValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeShouldReturnValuesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -125,8 +128,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeWithScoreShouldReturnTuplesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeWithScoreShouldReturnTuplesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -137,8 +140,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeByScoreShouldReturnValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeByScoreShouldReturnValuesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -149,8 +152,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-852
-	public void zRangeByScoreShouldReturnValuesCorrectlyWithMinUnbounded() {
+	@ParameterizedRedisTest // DATAREDIS-852
+	void zRangeByScoreShouldReturnValuesCorrectlyWithMinUnbounded() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -162,8 +165,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-852
-	public void zRangeByScoreShouldReturnValuesCorrectlyWithMaxUnbounded() {
+	@ParameterizedRedisTest // DATAREDIS-852
+	void zRangeByScoreShouldReturnValuesCorrectlyWithMaxUnbounded() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -175,8 +178,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeByScoreShouldReturnValuesCorrectlyWithMinExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeByScoreShouldReturnValuesCorrectlyWithMinExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -187,8 +190,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeByScoreShouldReturnValuesCorrectlyWithMaxExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeByScoreShouldReturnValuesCorrectlyWithMaxExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -199,8 +202,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeByScoreWithScoreShouldReturnTuplesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeByScoreWithScoreShouldReturnTuplesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -212,8 +215,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMinExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMinExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -225,8 +228,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMaxExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMaxExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -238,8 +241,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeByScoreShouldReturnValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeByScoreShouldReturnValuesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -250,8 +253,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeByScoreShouldReturnValuesCorrectlyWithMinExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeByScoreShouldReturnValuesCorrectlyWithMinExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -262,8 +265,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeByScoreShouldReturnValuesCorrectlyWithMaxExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeByScoreShouldReturnValuesCorrectlyWithMaxExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -274,8 +277,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeByScoreWithScoreShouldReturnTuplesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeByScoreWithScoreShouldReturnTuplesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -287,8 +290,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMinExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMinExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -300,8 +303,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMaxExclusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeByScoreWithScoreShouldReturnTuplesCorrectlyWithMaxExclusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -313,8 +316,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-743
-	public void zScanShouldIterateOverSortedSet() {
+	@ParameterizedRedisTest // DATAREDIS-743
+	void zScanShouldIterateOverSortedSet() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -329,8 +332,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void zCountShouldCountValuesInRange() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zCountShouldCountValuesInRange() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -339,8 +342,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zCount(KEY_1_BBUFFER, TWO_TO_THREE_ALL_INCLUSIVE).block()).isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zCountShouldCountValuesInRangeWithMinExlusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zCountShouldCountValuesInRangeWithMinExlusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -349,8 +352,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zCount(KEY_1_BBUFFER, TWO_EXCLUSIVE_TO_THREE_INCLUSIVE).block()).isEqualTo(1L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zCountShouldCountValuesInRangeWithMaxExlusion() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zCountShouldCountValuesInRangeWithMaxExlusion() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -359,8 +362,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zCount(KEY_1_BBUFFER, TWO_INCLUSIVE_TO_THREE_EXCLUSIVE).block()).isEqualTo(1L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zCountShouldCountValuesInRangeWithNegativeInfinity() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zCountShouldCountValuesInRangeWithNegativeInfinity() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -370,8 +373,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zCountShouldCountValuesInRangeWithPositiveInfinity() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zCountShouldCountValuesInRangeWithPositiveInfinity() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -381,8 +384,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zCardShouldReturnSizeCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zCardShouldReturnSizeCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -391,16 +394,16 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zCard(KEY_1_BBUFFER).block()).isEqualTo(3L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zScoreShouldReturnScoreCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zScoreShouldReturnScoreCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
 
 		assertThat(connection.zSetCommands().zScore(KEY_1_BBUFFER, VALUE_2_BBUFFER).block()).isEqualTo(2D);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRemRangeByRankShouldRemoveValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRemRangeByRankShouldRemoveValuesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -409,8 +412,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zRemRangeByRank(KEY_1_BBUFFER, ONE_TO_TWO).block()).isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRemRangeByScoreShouldRemoveValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRemRangeByScoreShouldRemoveValuesCorrectly() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -419,8 +422,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 		assertThat(connection.zSetCommands().zRemRangeByScore(KEY_1_BBUFFER, Range.closed(1D, 2D)).block()).isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRemRangeByScoreShouldRemoveValuesCorrectlyWithNegativeInfinity() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRemRangeByScoreShouldRemoveValuesCorrectlyWithNegativeInfinity() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -430,8 +433,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRemRangeByScoreShouldRemoveValuesCorrectlyWithPositiveInfinity() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRemRangeByScoreShouldRemoveValuesCorrectlyWithPositiveInfinity() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -441,8 +444,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRemRangeByScoreShouldRemoveValuesCorrectlyWithExcludingMinRange() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRemRangeByScoreShouldRemoveValuesCorrectlyWithExcludingMinRange() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -452,8 +455,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.isEqualTo(1L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRemRangeByScoreShouldRemoveValuesCorrectlyWithExcludingMaxRange() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRemRangeByScoreShouldRemoveValuesCorrectlyWithExcludingMaxRange() {
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -463,10 +466,10 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 				.isEqualTo(1L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zUnionStoreShouldWorkCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zUnionStoreShouldWorkCorrectly() {
 
-		assumeTrue(connectionProvider instanceof StandaloneConnectionProvider);
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -479,10 +482,10 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 						.isEqualTo(3L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zInterStoreShouldWorkCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zInterStoreShouldWorkCorrectly() {
 
-		assumeTrue(connectionProvider instanceof StandaloneConnectionProvider);
+		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
 
 		nativeCommands.zadd(KEY_1, 1D, VALUE_1);
 		nativeCommands.zadd(KEY_1, 2D, VALUE_2);
@@ -495,8 +498,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 						.isEqualTo(2L);
 	}
 
-	@Test // DATAREDIS-525
-	public void zRangeByLex() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRangeByLex() {
 
 		nativeCommands.zadd(KEY_1, 0D, "a");
 		nativeCommands.zadd(KEY_1, 0D, "b");
@@ -519,8 +522,8 @@ public class LettuceReactiveZSetCommandsTests extends LettuceReactiveCommandsTes
 						ByteBuffer.wrap("d".getBytes()), ByteBuffer.wrap("e".getBytes()), ByteBuffer.wrap("f".getBytes()));
 	}
 
-	@Test // DATAREDIS-525
-	public void zRevRangeByLex() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void zRevRangeByLex() {
 
 		nativeCommands.zadd(KEY_1, 0D, "a");
 		nativeCommands.zadd(KEY_1, 0D, "b");

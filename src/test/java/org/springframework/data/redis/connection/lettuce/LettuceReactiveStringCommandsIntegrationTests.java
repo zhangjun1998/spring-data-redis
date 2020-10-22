@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.Offset;
-import org.junit.Test;
+
 import org.springframework.data.domain.Range;
 import org.springframework.data.domain.Range.Bound;
 import org.springframework.data.redis.connection.ReactiveRedisConnection;
@@ -51,6 +51,7 @@ import org.springframework.data.redis.connection.ReactiveStringCommands.SetComma
 import org.springframework.data.redis.connection.RedisStringCommands.BitOperation;
 import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
 import org.springframework.data.redis.core.types.Expiration;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 import org.springframework.data.redis.test.util.HexStringUtils;
 import org.springframework.data.redis.util.ByteUtils;
 
@@ -59,10 +60,14 @@ import org.springframework.data.redis.util.ByteUtils;
  * @author Mark Paluch
  * @author Michele Mancioppi
  */
-public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsTestsBase {
+public class LettuceReactiveStringCommandsIntegrationTests extends LettuceReactiveCommandsTestSupport {
 
-	@Test // DATAREDIS-525
-	public void getSetShouldReturnPreviousValueCorrectly() {
+	public LettuceReactiveStringCommandsIntegrationTests(Fixture fixture) {
+		super(fixture);
+	}
+
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getSetShouldReturnPreviousValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -73,16 +78,16 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_1)).isEqualTo(VALUE_2);
 	}
 
-	@Test // DATAREDIS-525, DATAREDIS-645
-	public void getSetShouldNotEmitPreviousValueCorrectlyWhenNotExists() {
+	@ParameterizedRedisTest // DATAREDIS-525, DATAREDIS-645
+	void getSetShouldNotEmitPreviousValueCorrectlyWhenNotExists() {
 
 		connection.stringCommands().getSet(KEY_1_BBUFFER, VALUE_2_BBUFFER).as(StepVerifier::create).verifyComplete();
 
 		assertThat(nativeCommands.get(KEY_1)).isEqualTo(VALUE_2);
 	}
 
-	@Test // DATAREDIS-525
-	public void setShouldAddValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void setShouldAddValueCorrectly() {
 
 		connection.stringCommands().set(KEY_1_BBUFFER, VALUE_1_BBUFFER).as(StepVerifier::create) //
 				.expectNext(true) //
@@ -91,8 +96,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_1)).isEqualTo(VALUE_1);
 	}
 
-	@Test // DATAREDIS-525
-	public void setShouldAddValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void setShouldAddValuesCorrectly() {
 
 		List<SetCommand> setCommands = Arrays.asList(SetCommand.set(KEY_1_BBUFFER).value(VALUE_1_BBUFFER),
 				SetCommand.set(KEY_2_BBUFFER).value(VALUE_2_BBUFFER));
@@ -105,8 +110,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_2)).isEqualTo(VALUE_2);
 	}
 
-	@Test // DATAREDIS-525
-	public void getShouldRetrieveValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getShouldRetrieveValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -114,13 +119,13 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525, DATAREDIS-645
-	public void getShouldNotEmitValueValueIfAbsent() {
+	@ParameterizedRedisTest // DATAREDIS-525, DATAREDIS-645
+	void getShouldNotEmitValueValueIfAbsent() {
 		connection.stringCommands().get(KEY_1_BBUFFER).as(StepVerifier::create).verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void getShouldRetrieveValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getShouldRetrieveValuesCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 		nativeCommands.set(KEY_2, VALUE_2);
@@ -133,8 +138,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void getShouldRetrieveValuesWithNullCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getShouldRetrieveValuesWithNullCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 		nativeCommands.set(KEY_3, VALUE_3);
@@ -149,8 +154,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 
 	}
 
-	@Test // DATAREDIS-525
-	public void mGetShouldRetrieveValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void mGetShouldRetrieveValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 		nativeCommands.set(KEY_2, VALUE_2);
@@ -161,8 +166,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 
 	}
 
-	@Test // DATAREDIS-525
-	public void mGetShouldRetrieveNullValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void mGetShouldRetrieveNullValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 		nativeCommands.set(KEY_3, VALUE_3);
@@ -173,8 +178,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(result.block()).containsExactly(VALUE_1_BBUFFER, ByteBuffer.allocate(0), VALUE_3_BBUFFER);
 	}
 
-	@Test // DATAREDIS-525
-	public void mGetShouldRetrieveValuesCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void mGetShouldRetrieveValuesCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 		nativeCommands.set(KEY_2, VALUE_2);
@@ -193,16 +198,16 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void setNXshouldOnlySetValueWhenNotPresent() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void setNXshouldOnlySetValueWhenNotPresent() {
 
 		connection.stringCommands().setNX(KEY_1_BBUFFER, VALUE_1_BBUFFER).as(StepVerifier::create) //
 				.expectNext(true) //
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void setNXshouldNotSetValueWhenAlreadyPresent() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void setNXshouldNotSetValueWhenAlreadyPresent() {
 
 		nativeCommands.setnx(KEY_1, VALUE_1);
 
@@ -211,8 +216,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void setEXshouldSetKeyAndExpirationTime() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void setEXshouldSetKeyAndExpirationTime() {
 
 		connection.stringCommands().setEX(KEY_1_BBUFFER, VALUE_1_BBUFFER, Expiration.seconds(3)).as(StepVerifier::create) //
 				.expectNext(true) //
@@ -221,8 +226,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.ttl(KEY_1) > 1).isTrue();
 	}
 
-	@Test // DATAREDIS-525
-	public void pSetEXshouldSetKeyAndExpirationTime() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void pSetEXshouldSetKeyAndExpirationTime() {
 
 		connection.stringCommands().pSetEX(KEY_1_BBUFFER, VALUE_1_BBUFFER, Expiration.milliseconds(600))
 				.as(StepVerifier::create) //
@@ -232,8 +237,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.pttl(KEY_1) > 1).isTrue();
 	}
 
-	@Test // DATAREDIS-525
-	public void mSetShouldAddMultipleKeyValuePairs() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void mSetShouldAddMultipleKeyValuePairs() {
 
 		Map<ByteBuffer, ByteBuffer> map = new LinkedHashMap<>();
 		map.put(KEY_1_BBUFFER, VALUE_1_BBUFFER);
@@ -245,8 +250,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_2)).isEqualTo(VALUE_2);
 	}
 
-	@Test // DATAREDIS-525
-	public void mSetNXShouldAddMultipleKeyValuePairs() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void mSetNXShouldAddMultipleKeyValuePairs() {
 
 		assumeTrue(connectionProvider instanceof StandaloneConnectionProvider);
 
@@ -260,8 +265,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_2)).isEqualTo(VALUE_2);
 	}
 
-	@Test // DATAREDIS-525
-	public void mSetNXShouldNotAddMultipleKeyValuePairsWhenAlreadyExit() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void mSetNXShouldNotAddMultipleKeyValuePairsWhenAlreadyExit() {
 
 		assumeTrue(connectionProvider instanceof StandaloneConnectionProvider);
 
@@ -277,8 +282,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_2)).isEqualTo(VALUE_2);
 	}
 
-	@Test // DATAREDIS-525
-	public void appendShouldDoItsThing() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void appendShouldDoItsThing() {
 
 		connection.stringCommands().append(KEY_1_BBUFFER, VALUE_1_BBUFFER).as(StepVerifier::create) //
 				.expectNext(7L) //
@@ -289,8 +294,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void getRangeShouldReturnSubstringCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getRangeShouldReturnSubstringCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -299,8 +304,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void getRangeShouldReturnSubstringCorrectlyWithMinUnbound() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getRangeShouldReturnSubstringCorrectlyWithMinUnbound() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -312,8 +317,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void getRangeShouldReturnSubstringCorrectlyWithMaxUnbound() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getRangeShouldReturnSubstringCorrectlyWithMaxUnbound() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -325,8 +330,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void setRangeShouldReturnNewStringLengthCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void setRangeShouldReturnNewStringLengthCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -335,8 +340,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void getBitShouldReturnValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void getBitShouldReturnValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -349,8 +354,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void setBitShouldReturnValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void setBitShouldReturnValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -361,8 +366,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.getbit(KEY_1, 1)).isEqualTo(0L);
 	}
 
-	@Test // DATAREDIS-525
-	public void bitCountShouldReturnValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void bitCountShouldReturnValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -371,8 +376,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void bitCountShouldCountInRangeCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void bitCountShouldCountInRangeCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -381,8 +386,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-562
-	public void bitFieldSetShouldWorkCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-562
+	void bitFieldSetShouldWorkCorrectly() {
 
 		connection.stringCommands().bitField(KEY_1_BBUFFER, create().set(INT_8).valueAt(offset(0L)).to(10L))
 				.as(StepVerifier::create)
@@ -393,24 +398,24 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.expectNext(Collections.singletonList(10L)).verifyComplete();
 	}
 
-	@Test // DATAREDIS-562
-	public void bitFieldGetShouldWorkCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-562
+	void bitFieldGetShouldWorkCorrectly() {
 
 		connection.stringCommands().bitField(KEY_1_BBUFFER, create().get(INT_8).valueAt(offset(0L)))
 				.as(StepVerifier::create)
 				.expectNext(Collections.singletonList(0L)).verifyComplete();
 	}
 
-	@Test // DATAREDIS-562
-	public void bitFieldIncrByShouldWorkCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-562
+	void bitFieldIncrByShouldWorkCorrectly() {
 
 		connection.stringCommands().bitField(KEY_1_BBUFFER, create().incr(INT_8).valueAt(offset(100L)).by(1L))
 				.as(StepVerifier::create)
 				.expectNext(Collections.singletonList(1L)).verifyComplete();
 	}
 
-	@Test // DATAREDIS-562
-	public void bitFieldIncrByWithOverflowShouldWorkCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-562
+	void bitFieldIncrByWithOverflowShouldWorkCorrectly() {
 
 		connection.stringCommands()
 				.bitField(KEY_1_BBUFFER, create().incr(unsigned(2)).valueAt(offset(102L)).overflow(FAIL).by(1L))
@@ -430,8 +435,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.expectNext(Collections.singletonList(null)).verifyComplete();
 	}
 
-	@Test // DATAREDIS-562
-	public void bitfieldShouldAllowMultipleSubcommands() {
+	@ParameterizedRedisTest // DATAREDIS-562
+	void bitfieldShouldAllowMultipleSubcommands() {
 
 		connection.stringCommands()
 				.bitField(KEY_1_BBUFFER, create().incr(signed(5)).valueAt(offset(100L)).by(1L).get(unsigned(4)).valueAt(0L))
@@ -439,8 +444,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.expectNext(Arrays.asList(1L, 0L)).verifyComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void bitOpAndShouldWorkAsExpected() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void bitOpAndShouldWorkAsExpected() {
 
 		assumeTrue(connectionProvider instanceof StandaloneConnectionProvider);
 
@@ -455,8 +460,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_3)).isEqualTo("value-0");
 	}
 
-	@Test // DATAREDIS-525
-	public void bitOpOrShouldWorkAsExpected() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void bitOpOrShouldWorkAsExpected() {
 
 		assumeTrue(connectionProvider instanceof StandaloneConnectionProvider);
 
@@ -471,8 +476,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 		assertThat(nativeCommands.get(KEY_3)).isEqualTo(VALUE_3);
 	}
 
-	@Test // DATAREDIS-525
-	public void bitNotShouldThrowExceptionWhenMoreThanOnSourceKey() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void bitNotShouldThrowExceptionWhenMoreThanOnSourceKey() {
 
 		assumeTrue(connectionProvider instanceof StandaloneConnectionProvider);
 
@@ -482,8 +487,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verify();
 	}
 
-	@Test // DATAREDIS-525
-	public void strLenShouldReturnValueCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void strLenShouldReturnValueCorrectly() {
 
 		nativeCommands.set(KEY_1, VALUE_1);
 
@@ -492,16 +497,16 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.verifyComplete();
 	}
 
-	@Test // DATAREDIS-697
-	public void bitPosShouldReturnPositionCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-697
+	void bitPosShouldReturnPositionCorrectly() {
 
 		nativeBinaryCommands.set(KEY_1_BBUFFER, ByteBuffer.wrap(HexStringUtils.hexToBytes("fff000")));
 
 		connection.stringCommands().bitPos(KEY_1_BBUFFER, false).as(StepVerifier::create).expectNext(12L).verifyComplete();
 	}
 
-	@Test // DATAREDIS-697
-	public void bitPosShouldReturnPositionInRangeCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-697
+	void bitPosShouldReturnPositionInRangeCorrectly() {
 
 		nativeBinaryCommands.set(KEY_1_BBUFFER, ByteBuffer.wrap(HexStringUtils.hexToBytes("fff0f0")));
 
@@ -510,8 +515,8 @@ public class LettuceReactiveStringCommandsTests extends LettuceReactiveCommandsT
 				.expectNext(16L).verifyComplete();
 	}
 
-	@Test // DATAREDIS-1103
-	public void setKeepTTL() {
+	@ParameterizedRedisTest // DATAREDIS-1103
+	void setKeepTTL() {
 
 		long expireSeconds = 10;
 		nativeCommands.setex(KEY_1, expireSeconds, VALUE_1);

@@ -27,18 +27,17 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * @author Christoph Strobl
  */
-public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTestsBase {
+public class LettuceReactiveGeoCommandsIntegrationTests extends LettuceReactiveCommandsTestSupport {
 
 	private static final String ARIGENTO_MEMBER_NAME = "arigento";
 	private static final String CATANIA_MEMBER_NAME = "catania";
@@ -55,19 +54,23 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 	private static final GeoLocation<ByteBuffer> PALERMO = new GeoLocation<>(
 			ByteBuffer.wrap(PALERMO_MEMBER_NAME.getBytes(Charset.forName("UTF-8"))), POINT_PALERMO);
 
-	@Test // DATAREDIS-525
-	public void geoAddShouldAddSingleGeoLocationCorrectly() {
+	public LettuceReactiveGeoCommandsIntegrationTests(Fixture fixture) {
+		super(fixture);
+	}
+
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoAddShouldAddSingleGeoLocationCorrectly() {
 		assertThat(connection.geoCommands().geoAdd(KEY_1_BBUFFER, ARIGENTO).block()).isEqualTo(1L);
 	}
 
-	@Test // DATAREDIS-525
-	public void geoAddShouldAddMultipleGeoLocationsCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoAddShouldAddMultipleGeoLocationsCorrectly() {
 		assertThat(connection.geoCommands().geoAdd(KEY_1_BBUFFER, Arrays.asList(ARIGENTO, CATANIA, PALERMO)).block())
 				.isEqualTo(3L);
 	}
 
-	@Test // DATAREDIS-525
-	public void geoDistShouldReturnDistanceInMetersByDefault() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoDistShouldReturnDistanceInMetersByDefault() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -76,8 +79,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 				.isCloseTo(166274.15156960033D, offset(0.005));
 	}
 
-	@Test // DATAREDIS-525
-	public void geoDistShouldReturnDistanceInDesiredMetric() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoDistShouldReturnDistanceInDesiredMetric() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -86,8 +89,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 				.block().getValue()).isCloseTo(166.27415156960033D, offset(0.005));
 	}
 
-	@Test // DATAREDIS-525
-	public void geoHash() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoHash() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -97,8 +100,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 						.containsExactly("sqc8b49rny0", "sqdtr74hyu0");
 	}
 
-	@Test // DATAREDIS-525
-	public void geoHashNotExisting() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoHashNotExisting() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -108,8 +111,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 						.containsExactly("sqc8b49rny0", null, "sqdtr74hyu0");
 	}
 
-	@Test // DATAREDIS-525
-	public void geoPos() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoPos() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -123,8 +126,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 		assertThat(result.get(1).getY()).isCloseTo(POINT_CATANIA.getY(), offset(0.005));
 	}
 
-	@Test // DATAREDIS-525
-	public void geoPosNonExisting() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoPosNonExisting() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -140,8 +143,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 		assertThat(result.get(2).getY()).isCloseTo(POINT_CATANIA.getY(), offset(0.005));
 	}
 
-	@Test // DATAREDIS-525
-	public void geoRadiusShouldReturnMembersCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoRadiusShouldReturnMembersCorrectly() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -158,8 +161,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 				.expectComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void geoRadiusShouldReturnDistanceCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoRadiusShouldReturnDistanceCorrectly() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -177,8 +180,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 				.expectComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void geoRadiusShouldApplyLimit() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoRadiusShouldApplyLimit() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -192,8 +195,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 				.expectComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void geoRadiusByMemberShouldReturnMembersCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoRadiusByMemberShouldReturnMembersCorrectly() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -210,8 +213,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 				.expectComplete();
 	}
 
-	@Test // DATAREDIS-525
-	public void geoRadiusByMemberShouldReturnDistanceCorrectly() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoRadiusByMemberShouldReturnDistanceCorrectly() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
@@ -231,8 +234,8 @@ public class LettuceReactiveGeoCommandsTests extends LettuceReactiveCommandsTest
 
 	}
 
-	@Test // DATAREDIS-525
-	public void geoRadiusByMemberShouldApplyLimit() {
+	@ParameterizedRedisTest // DATAREDIS-525
+	void geoRadiusByMemberShouldApplyLimit() {
 
 		nativeCommands.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO_MEMBER_NAME);
 		nativeCommands.geoadd(KEY_1, CATANIA.getPoint().getX(), CATANIA.getPoint().getY(), CATANIA_MEMBER_NAME);
