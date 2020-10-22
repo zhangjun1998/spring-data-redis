@@ -19,11 +19,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runners.Parameterized.Parameters;
 
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -33,116 +30,113 @@ import org.springframework.data.redis.Person;
 import org.springframework.data.redis.PersonObjectFactory;
 import org.springframework.data.redis.RawObjectFactory;
 import org.springframework.data.redis.StringObjectFactory;
-import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.extension.JedisConnectionFactoryExtension;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.extension.LettuceConnectionFactoryExtension;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.OxmSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.data.redis.test.extension.LettuceTestClientResources;
+import org.springframework.data.redis.test.condition.EnabledOnRedisClusterAvailable;
 import org.springframework.data.redis.test.extension.RedisCluster;
-import org.springframework.data.redis.test.util.RedisClusterRule;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
 /**
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-public class RedisClusterTemplateTests<K, V> extends RedisTemplateTests<K, V> {
+@EnabledOnRedisClusterAvailable
+public class RedisClusterTemplateIntegrationTests<K, V> extends RedisTemplateIntegrationTests<K, V> {
 
-	public RedisClusterTemplateTests(RedisTemplate<K, V> redisTemplate, ObjectFactory<K> keyFactory,
+	public RedisClusterTemplateIntegrationTests(RedisTemplate<K, V> redisTemplate, ObjectFactory<K> keyFactory,
 			ObjectFactory<V> valueFactory) {
 		super(redisTemplate, keyFactory, valueFactory);
 	}
 
-	public static @ClassRule RedisClusterRule clusterAvailable = new RedisClusterRule();
-
-	@Test
-	@Ignore("Pipeline not supported in cluster mode")
+	@ParameterizedRedisTest
+	@Disabled("Pipeline not supported in cluster mode")
 	public void testExecutePipelinedNonNullRedisCallback() {
 		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
 				.isThrownBy(super::testExecutePipelinedNonNullRedisCallback);
 	}
 
-	@Test
-	@Ignore("Pipeline not supported in cluster mode")
+	@ParameterizedRedisTest
+	@Disabled("Pipeline not supported in cluster mode")
 	public void testExecutePipelinedTx() {
 		super.testExecutePipelinedTx();
 	}
 
-	@Test
-	@Ignore("Watch only supported on same connection...")
+	@ParameterizedRedisTest
+	@Disabled("Watch only supported on same connection...")
 	public void testWatch() {
 		super.testWatch();
 	}
 
-	@Test
-	@Ignore("Watch only supported on same connection...")
+	@ParameterizedRedisTest
+	@Disabled("Watch only supported on same connection...")
 	public void testUnwatch() {
 		super.testUnwatch();
 	}
 
-	@Test
-	@Ignore("EXEC only supported on same connection...")
+	@ParameterizedRedisTest
+	@Disabled("EXEC only supported on same connection...")
 	public void testExec() {
 		super.testExec();
 	}
 
-	@Test
-	@Ignore("Pipeline not supported in cluster mode")
+	@ParameterizedRedisTest
+	@Disabled("Pipeline not supported in cluster mode")
 	public void testExecutePipelinedNonNullSessionCallback() {
 		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
 				.isThrownBy(super::testExecutePipelinedNonNullSessionCallback);
 	}
 
-	@Test
-	@Ignore("PubSub not supported in cluster mode")
+	@ParameterizedRedisTest
+	@Disabled("PubSub not supported in cluster mode")
 	public void testConvertAndSend() {
 		super.testConvertAndSend();
 	}
 
-	@Test
-	@Ignore("Watch only supported on same connection...")
+	@ParameterizedRedisTest
+	@Disabled("Watch only supported on same connection...")
 	public void testExecConversionDisabled() {
 		super.testExecConversionDisabled();
 	}
 
-	@Test
-	@Ignore("Discard only supported on same connection...")
+	@ParameterizedRedisTest
+	@Disabled("Discard only supported on same connection...")
 	public void testDiscard() {
 		super.testDiscard();
 	}
 
-	@Test
-	@Ignore("Pipleline not supported in cluster mode")
+	@ParameterizedRedisTest
+	@Disabled("Pipleline not supported in cluster mode")
 	public void testExecutePipelined() {
 		super.testExecutePipelined();
 	}
 
-	@Test
-	@Ignore("Watch only supported on same connection...")
+	@ParameterizedRedisTest
+	@Disabled("Watch only supported on same connection...")
 	public void testWatchMultipleKeys() {
 		super.testWatchMultipleKeys();
 	}
 
-	@Test
-	@Ignore("This one fails when using GET options on numbers")
+	@ParameterizedRedisTest
+	@Disabled("This one fails when using GET options on numbers")
 	public void testSortBulkMapper() {
 		super.testSortBulkMapper();
 	}
 
-	@Test
-	@Ignore("This one fails when using GET options on numbers")
+	@ParameterizedRedisTest
+	@Disabled("This one fails when using GET options on numbers")
 	public void testGetExpireMillisUsingTransactions() {
 		super.testGetExpireMillisUsingTransactions();
 	}
 
-	@Test
-	@Ignore("This one fails when using GET options on numbers")
+	@ParameterizedRedisTest
+	@Disabled("This one fails when using GET options on numbers")
 	public void testGetExpireMillisUsingPipelining() {
 		super.testGetExpireMillisUsingPipelining();
 	}

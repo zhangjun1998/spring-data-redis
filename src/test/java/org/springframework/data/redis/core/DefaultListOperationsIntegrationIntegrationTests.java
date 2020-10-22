@@ -16,7 +16,7 @@
 package org.springframework.data.redis.core;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
+import static org.assertj.core.api.Assumptions.*;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -24,21 +24,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.springframework.data.redis.ConnectionFactoryTracker;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.RedisTestProfileValueSource;
 import org.springframework.data.redis.StringObjectFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
-import org.springframework.test.annotation.IfProfileValue;
+import org.springframework.data.redis.test.condition.EnabledOnCommand;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * Integration test of {@link DefaultListOperations}
@@ -49,52 +43,42 @@ import org.springframework.test.annotation.IfProfileValue;
  * @param <K> Key test
  * @param <V> Value test
  */
-@RunWith(Parameterized.class)
-public class DefaultListOperationsTests<K, V> {
+@MethodSource("testParams")
+public class DefaultListOperationsIntegrationIntegrationTests<K, V> {
 
-	@Rule public MinimumRedisVersionRule redisVersion = new MinimumRedisVersionRule();
+	private final RedisTemplate<K, V> redisTemplate;
 
-	private RedisTemplate<K, V> redisTemplate;
+	private final ObjectFactory<K> keyFactory;
 
-	private ObjectFactory<K> keyFactory;
+	private final ObjectFactory<V> valueFactory;
 
-	private ObjectFactory<V> valueFactory;
+	private final ListOperations<K, V> listOps;
 
-	private ListOperations<K, V> listOps;
-
-	public DefaultListOperationsTests(RedisTemplate<K, V> redisTemplate, ObjectFactory<K> keyFactory,
+	public DefaultListOperationsIntegrationIntegrationTests(RedisTemplate<K, V> redisTemplate,
+			ObjectFactory<K> keyFactory,
 			ObjectFactory<V> valueFactory) {
 
 		this.redisTemplate = redisTemplate;
 		this.keyFactory = keyFactory;
 		this.valueFactory = valueFactory;
+		this.listOps = redisTemplate.opsForList();
 	}
 
-	@Parameters
 	public static Collection<Object[]> testParams() {
 		return AbstractOperationsTestParams.testParams();
 	}
 
-	@AfterClass
-	public static void cleanUp() {
-		ConnectionFactoryTracker.cleanUp();
-	}
+	@BeforeEach
+	void setUp() {
 
-	@Before
-	public void setUp() {
-		listOps = redisTemplate.opsForList();
-	}
-
-	@After
-	public void tearDown() {
 		redisTemplate.execute((RedisCallback<Object>) connection -> {
 			connection.flushDb();
 			return null;
 		});
 	}
 
-	@Test
-	public void testLeftPushWithPivot() {
+	@ParameterizedRedisTest
+	void testLeftPushWithPivot() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -107,8 +91,8 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.range(key, 0, -1)).containsSequence(v2, v3, v1);
 	}
 
-	@Test
-	public void testLeftPushIfPresent() {
+	@ParameterizedRedisTest
+	void testLeftPushIfPresent() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -121,8 +105,8 @@ public class DefaultListOperationsTests<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testLeftPushAll() {
+	@ParameterizedRedisTest
+	void testLeftPushAll() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -134,12 +118,12 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.range(key, 0, -1)).contains(v3, v2, v1);
 	}
 
-	@Test // DATAREDIS-611
-	public void testLeftPopDuration() {
+	@ParameterizedRedisTest // DATAREDIS-611
+	void testLeftPopDuration() {
 
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeTrue(RedisTestProfileValueSource.matches("runLongTests", "true"));
-		assumeTrue(valueFactory instanceof StringObjectFactory);
+		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
+		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -150,12 +134,12 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.leftPop(key, Duration.ofSeconds(1))).isEqualTo(v1);
 	}
 
-	@Test // DATAREDIS-611
-	public void testRightPopDuration() {
+	@ParameterizedRedisTest // DATAREDIS-611
+	void testRightPopDuration() {
 
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeTrue(RedisTestProfileValueSource.matches("runLongTests", "true"));
-		assumeTrue(valueFactory instanceof StringObjectFactory);
+		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
+		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -166,11 +150,11 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.rightPop(key, Duration.ofSeconds(1))).isEqualTo(v2);
 	}
 
-	@Test
-	public void testRightPopAndLeftPushTimeout() {
+	@ParameterizedRedisTest
+	void testRightPopAndLeftPushTimeout() {
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeTrue(RedisTestProfileValueSource.matches("runLongTests", "true"));
-		assumeTrue(valueFactory instanceof StringObjectFactory);
+		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
+		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();
 		K key2 = keyFactory.instance();
@@ -181,11 +165,11 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.rightPopAndLeftPush(key, key2, 1, TimeUnit.MILLISECONDS)).isEqualTo(v1);
 	}
 
-	@Test // DATAREDIS-611
-	public void testRightPopAndLeftPushDuration() {
+	@ParameterizedRedisTest // DATAREDIS-611
+	void testRightPopAndLeftPushDuration() {
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeTrue(RedisTestProfileValueSource.matches("runLongTests", "true"));
-		assumeTrue(valueFactory instanceof StringObjectFactory);
+		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
+		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();
 		K key2 = keyFactory.instance();
@@ -196,8 +180,8 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.rightPopAndLeftPush(key, key2, Duration.ofMillis(1))).isEqualTo(v1);
 	}
 
-	@Test
-	public void testRightPopAndLeftPush() {
+	@ParameterizedRedisTest
+	void testRightPopAndLeftPush() {
 
 		K key = keyFactory.instance();
 		K key2 = keyFactory.instance();
@@ -208,8 +192,8 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.rightPopAndLeftPush(key, key2)).isEqualTo(v1);
 	}
 
-	@Test
-	public void testRightPushWithPivot() {
+	@ParameterizedRedisTest
+	void testRightPushWithPivot() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -222,8 +206,8 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.range(key, 0, -1)).containsSequence(v1, v3, v2);
 	}
 
-	@Test
-	public void testRightPushIfPresent() {
+	@ParameterizedRedisTest
+	void testRightPushIfPresent() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -236,8 +220,8 @@ public class DefaultListOperationsTests<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testRightPushAll() {
+	@ParameterizedRedisTest
+	void testRightPushAll() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -249,9 +233,9 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.range(key, 0, -1)).containsSequence(v1, v2, v3);
 	}
 
-	@Test // DATAREDIS-288
-	@SuppressWarnings("unchecked")
-	public void testRightPushAllCollection() {
+	@ParameterizedRedisTest // DATAREDIS-288
+
+	void testRightPushAllCollection() {
 
 		K key = keyFactory.instance();
 
@@ -263,31 +247,30 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.range(key, 0, -1)).containsSequence(v1, v2, v3);
 	}
 
-	@Test // DATAREDIS-288
-	public void rightPushAllShouldThrowExceptionWhenCalledWithEmptyCollection() {
+	@ParameterizedRedisTest // DATAREDIS-288
+	void rightPushAllShouldThrowExceptionWhenCalledWithEmptyCollection() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> listOps.rightPushAll(keyFactory.instance(), Collections.<V> emptyList()));
 	}
 
-	@Test
-	@SuppressWarnings("unchecked")
+	@ParameterizedRedisTest
 	// DATAREDIS-288
-	public void rightPushAllShouldThrowExceptionWhenCollectionContainsNullValue() {
+	void rightPushAllShouldThrowExceptionWhenCollectionContainsNullValue() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> listOps.rightPushAll(keyFactory.instance(), Arrays.asList(valueFactory.instance(), null)));
 	}
 
-	@Test // DATAREDIS-288
-	public void rightPushAllShouldThrowExceptionWhenCalledWithNull() {
+	@ParameterizedRedisTest // DATAREDIS-288
+	void rightPushAllShouldThrowExceptionWhenCalledWithNull() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> listOps.rightPushAll(keyFactory.instance(), (Collection<V>) null));
 	}
 
-	@Test // DATAREDIS-288
-	@SuppressWarnings("unchecked")
-	public void testLeftPushAllCollection() {
+	@ParameterizedRedisTest // DATAREDIS-288
 
-		assumeTrue(redisTemplate.getConnectionFactory() instanceof LettuceConnectionFactory);
+	void testLeftPushAllCollection() {
+
+		assumeThat(redisTemplate.getConnectionFactory() instanceof LettuceConnectionFactory).isTrue();
 
 		K key = keyFactory.instance();
 
@@ -299,27 +282,27 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.range(key, 0, -1)).containsSequence(v3, v2, v1);
 	}
 
-	@Test // DATAREDIS-288
-	public void leftPushAllShouldThrowExceptionWhenCalledWithEmptyCollection() {
+	@ParameterizedRedisTest // DATAREDIS-288
+	void leftPushAllShouldThrowExceptionWhenCalledWithEmptyCollection() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> listOps.leftPushAll(keyFactory.instance(), Collections.<V> emptyList()));
 	}
 
-	@Test // DATAREDIS-288
-	public void leftPushAllShouldThrowExceptionWhenCollectionContainsNullValue() {
+	@ParameterizedRedisTest // DATAREDIS-288
+	void leftPushAllShouldThrowExceptionWhenCollectionContainsNullValue() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> listOps.leftPushAll(keyFactory.instance(), Arrays.asList(valueFactory.instance(), null)));
 	}
 
-	@Test // DATAREDIS-288
-	public void leftPushAllShouldThrowExceptionWhenCalledWithNull() {
+	@ParameterizedRedisTest // DATAREDIS-288
+	void leftPushAllShouldThrowExceptionWhenCalledWithNull() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> listOps.leftPushAll(keyFactory.instance(), (Collection<V>) null));
 	}
 
-	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
-	public void indexOf() {
+	@ParameterizedRedisTest // DATAREDIS-1196
+	@EnabledOnCommand("LPOS")
+	void indexOf() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -332,9 +315,9 @@ public class DefaultListOperationsTests<K, V> {
 		assertThat(listOps.indexOf(key, v1)).isEqualTo(0);
 	}
 
-	@Test // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
-	public void lastIndexOf() {
+	@ParameterizedRedisTest // DATAREDIS-1196
+	@EnabledOnCommand("LPOS")
+	void lastIndexOf() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();

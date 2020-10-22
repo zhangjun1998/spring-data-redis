@@ -16,37 +16,35 @@
 package org.springframework.data.redis.core;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
+import static org.assertj.core.api.Assumptions.*;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.assertj.core.api.Assumptions;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.springframework.data.domain.Range;
 import org.springframework.data.domain.Range.Bound;
-import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.Person;
-import org.springframework.data.redis.RedisTestProfileValueSource;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisZSetCommands.Limit;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
-import org.springframework.data.redis.connection.stream.PendingMessages;
-import org.springframework.data.redis.connection.stream.PendingMessagesSummary;
-import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
+import org.springframework.data.redis.connection.stream.PendingMessages;
+import org.springframework.data.redis.connection.stream.PendingMessagesSummary;
 import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
-import org.springframework.data.redis.connection.RedisZSetCommands.Limit;
 import org.springframework.data.redis.connection.stream.StreamRecords;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.test.condition.EnabledOnCommand;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
+import org.springframework.data.redis.test.util.WithRedisDriver;
 
 /**
  * Integration test of {@link DefaultStreamOperations}
@@ -54,42 +52,39 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-@RunWith(Parameterized.class)
-public class DefaultStreamOperationsTests<K, HK, HV> {
+@MethodSource("testParams")
+@EnabledOnCommand("XADD")
+public class DefaultStreamOperationsIntegrationTests<K, HK, HV> {
 
-	private RedisTemplate<K, ?> redisTemplate;
+	private final RedisTemplate<K, ?> redisTemplate;
+	private final @WithRedisDriver.DriverQualifier RedisConnectionFactory connectionFactory;
 
-	private ObjectFactory<K> keyFactory;
+	private final ObjectFactory<K> keyFactory;
+	private final ObjectFactory<HK> hashKeyFactory;
+	private final ObjectFactory<HV> hashValueFactory;
+	private final StreamOperations<K, HK, HV> streamOps;
 
-	private ObjectFactory<HK> hashKeyFactory;
-
-	private ObjectFactory<HV> hashValueFactory;
-
-	private StreamOperations<K, HK, HV> streamOps;
-
-	public DefaultStreamOperationsTests(RedisTemplate<K, ?> redisTemplate, ObjectFactory<K> keyFactory,
+	public DefaultStreamOperationsIntegrationTests(RedisTemplate<K, ?> redisTemplate, ObjectFactory<K> keyFactory,
 			ObjectFactory<?> objectFactory) {
 
 		// Currently, only Lettuce supports Redis Streams.
 		// See https://github.com/xetorthio/jedis/issues/1820
-		assumeTrue(redisTemplate.getConnectionFactory() instanceof LettuceConnectionFactory);
-
-		assumeTrue(RedisTestProfileValueSource.atLeast("redisVersion", "5.0"));
+		assumeThat(redisTemplate.getRequiredConnectionFactory()).isInstanceOf(LettuceConnectionFactory.class);
 
 		this.redisTemplate = redisTemplate;
+		this.connectionFactory = redisTemplate.getRequiredConnectionFactory();
 		this.keyFactory = keyFactory;
 		this.hashKeyFactory = (ObjectFactory<HK>) keyFactory;
 		this.hashValueFactory = (ObjectFactory<HV>) objectFactory;
+		streamOps = redisTemplate.opsForStream();
 	}
 
-	@Parameters
 	public static Collection<Object[]> testParams() {
 		return AbstractOperationsTestParams.testParams();
 	}
 
-	@Before
-	public void setUp() {
-		streamOps = redisTemplate.opsForStream();
+	@BeforeEach
+	void setUp() {
 
 		redisTemplate.execute((RedisCallback<Object>) connection -> {
 			connection.flushDb();
@@ -97,8 +92,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		});
 	}
 
-	@Test // DATAREDIS-864
-	public void addShouldAddMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void addShouldAddMessage() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -120,8 +115,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		}
 	}
 
-	@Test // DATAREDIS-864
-	public void addShouldAddReadSimpleMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void addShouldAddReadSimpleMessage() {
 
 		K key = keyFactory.instance();
 		HV value = hashValueFactory.instance();
@@ -140,13 +135,13 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(message.getValue()).isEqualTo(value);
 	}
 
-	@Test // DATAREDIS-864
-	public void simpleMessageReadWriteSymmetry() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void simpleMessageReadWriteSymmetry() {
 
 		K key = keyFactory.instance();
 		HV value = hashValueFactory.instance();
 
-		Assumptions.assumeThat(value).isNotInstanceOf(Person.class);
+		assumeThat(value).isNotInstanceOf(Person.class);
 
 		RecordId messageId = streamOps.add(StreamRecords.objectBacked(value).withStreamKey(key));
 
@@ -162,8 +157,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(message.getValue().values()).containsExactly(value);
 	}
 
-	@Test // DATAREDIS-864
-	public void rangeShouldReportMessages() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void rangeShouldReportMessages() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -183,8 +178,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(message.getId()).isEqualTo(messageId1);
 	}
 
-	@Test // DATAREDIS-864
-	public void reverseRangeShouldReportMessages() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void reverseRangeShouldReportMessages() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -198,8 +193,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(messages).hasSize(2).extracting("id").containsSequence(messageId2, messageId1);
 	}
 
-	@Test // DATAREDIS-864
-	public void reverseRangeShouldConvertSimpleMessages() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void reverseRangeShouldConvertSimpleMessages() {
 
 		K key = keyFactory.instance();
 		HV value = hashValueFactory.instance();
@@ -219,8 +214,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(message.getValue()).isEqualTo(value);
 	}
 
-	@Test // DATAREDIS-864
-	public void readShouldReadMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void readShouldReadMessage() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -242,8 +237,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		}
 	}
 
-	@Test // DATAREDIS-864
-	public void readShouldReadSimpleMessage() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void readShouldReadSimpleMessage() {
 
 		K key = keyFactory.instance();
 		HV value = hashValueFactory.instance();
@@ -263,8 +258,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(message.getValue()).isEqualTo(value);
 	}
 
-	@Test // DATAREDIS-864
-	public void readShouldReadMessages() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void readShouldReadMessages() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -279,8 +274,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(messages).hasSize(2);
 	}
 
-	@Test // DATAREDIS-864
-	public void readShouldReadMessageWithConsumerGroup() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void readShouldReadMessageWithConsumerGroup() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -304,8 +299,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		}
 	}
 
-	@Test // DATAREDIS-864
-	public void sizeShouldReportStreamSize() {
+	@ParameterizedRedisTest // DATAREDIS-864
+	void sizeShouldReportStreamSize() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -318,8 +313,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(streamOps.size(key)).isEqualTo(2);
 	}
 
-	@Test // DATAREDIS-1084
-	public void pendingShouldReadMessageSummary() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void pendingShouldReadMessageSummary() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();
@@ -337,8 +332,8 @@ public class DefaultStreamOperationsTests<K, HK, HV> {
 		assertThat(pending.getGroupName()).isEqualTo("my-group");
 	}
 
-	@Test // DATAREDIS-1084
-	public void pendingShouldReadMessageDetails() {
+	@ParameterizedRedisTest // DATAREDIS-1084
+	void pendingShouldReadMessageDetails() {
 
 		K key = keyFactory.instance();
 		HK hashKey = hashKeyFactory.instance();

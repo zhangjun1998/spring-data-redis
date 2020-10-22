@@ -23,47 +23,39 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.extension.JedisConnectionFactoryExtension;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.extension.LettuceConnectionFactoryExtension;
-import org.springframework.data.redis.test.extension.LettuceTestClientResources;
 import org.springframework.data.redis.test.extension.RedisStanalone;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * @author Artem Bilian
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-@RunWith(Parameterized.class)
-public class MultithreadedRedisTemplateTests {
+@MethodSource("testParams")
+public class MultithreadedRedisTemplateIntegrationTests {
 
-	private RedisConnectionFactory factory;
+	private final RedisConnectionFactory factory;
 
-	public MultithreadedRedisTemplateTests(RedisConnectionFactory factory) {
+	public MultithreadedRedisTemplateIntegrationTests(RedisConnectionFactory factory) {
 		this.factory = factory;
 	}
 
-	@Parameters
-	public static Collection<Object[]> testParams() {
+	public static Collection<Object> testParams() {
 
 		JedisConnectionFactory jedis = JedisConnectionFactoryExtension.getConnectionFactory(RedisStanalone.class);
-
 		LettuceConnectionFactory lettuce = LettuceConnectionFactoryExtension.getConnectionFactory(RedisStanalone.class);
 
-		return Arrays.asList(new Object[][] { { jedis }, { lettuce } });
+		return Arrays.asList(jedis, lettuce);
 	}
 
-	@Test // DATAREDIS-300
-	public void assertResouresAreReleasedProperlyWhenSharingRedisTemplate() throws InterruptedException {
+	@ParameterizedRedisTest // DATAREDIS-300
+	void assertResouresAreReleasedProperlyWhenSharingRedisTemplate() throws InterruptedException {
 
 		final RedisTemplate<Object, Object> template = new RedisTemplate<>();
 		template.setConnectionFactory(factory);

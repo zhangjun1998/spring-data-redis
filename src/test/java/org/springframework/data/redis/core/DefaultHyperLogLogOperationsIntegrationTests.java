@@ -19,72 +19,48 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.ObjectFactory;
-import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
-import org.springframework.test.annotation.IfProfileValue;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-@RunWith(Parameterized.class)
-@IfProfileValue(name = "redisVersion", value = "2.8.9+")
-public class DefaultHyperLogLogOperationsTests<K, V> {
+@MethodSource("testParams")
+public class DefaultHyperLogLogOperationsIntegrationTests<K, V> {
 
-	private RedisTemplate<K, V> redisTemplate;
+	private final RedisTemplate<K, V> redisTemplate;
+	private final ObjectFactory<K> keyFactory;
+	private final ObjectFactory<V> valueFactory;
+	private final HyperLogLogOperations<K, V> hyperLogLogOps;
 
-	private ObjectFactory<K> keyFactory;
-
-	private ObjectFactory<V> valueFactory;
-
-	private HyperLogLogOperations<K, V> hyperLogLogOps;
-
-	public static @ClassRule MinimumRedisVersionRule versionRule = new MinimumRedisVersionRule();
-
-	public DefaultHyperLogLogOperationsTests(RedisTemplate<K, V> redisTemplate, ObjectFactory<K> keyFactory,
+	public DefaultHyperLogLogOperationsIntegrationTests(RedisTemplate<K, V> redisTemplate, ObjectFactory<K> keyFactory,
 			ObjectFactory<V> valueFactory) {
 
 		this.redisTemplate = redisTemplate;
 		this.keyFactory = keyFactory;
 		this.valueFactory = valueFactory;
+		this.hyperLogLogOps = redisTemplate.opsForHyperLogLog();
 	}
 
-	@Parameters
 	public static Collection<Object[]> testParams() {
 		return AbstractOperationsTestParams.testParams();
 	}
 
-	@AfterClass
-	public static void cleanUp() {
-		ConnectionFactoryTracker.cleanUp();
-	}
-
 	@Before
-	public void setUp() {
-		hyperLogLogOps = redisTemplate.opsForHyperLogLog();
-	}
-
-	@After
-	public void tearDown() {
+	void setUp() {
 		redisTemplate.execute((RedisCallback<Object>) connection -> {
 			connection.flushDb();
 			return null;
 		});
 	}
 
-	@Test // DATAREDIS-308
+	@ParameterizedRedisTest // DATAREDIS-308
 	@SuppressWarnings("unchecked")
-	public void addShouldAddDistinctValuesCorrectly() {
+	void addShouldAddDistinctValuesCorrectly() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -94,9 +70,9 @@ public class DefaultHyperLogLogOperationsTests<K, V> {
 		assertThat(hyperLogLogOps.add(key, v1, v2, v3)).isEqualTo(1L);
 	}
 
-	@Test // DATAREDIS-308
+	@ParameterizedRedisTest // DATAREDIS-308
 	@SuppressWarnings("unchecked")
-	public void addShouldNotAddExistingValuesCorrectly() {
+	void addShouldNotAddExistingValuesCorrectly() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -107,9 +83,9 @@ public class DefaultHyperLogLogOperationsTests<K, V> {
 		assertThat(hyperLogLogOps.add(key, v2)).isEqualTo(0L);
 	}
 
-	@Test // DATAREDIS-308
+	@ParameterizedRedisTest // DATAREDIS-308
 	@SuppressWarnings("unchecked")
-	public void sizeShouldCountValuesCorrectly() {
+	void sizeShouldCountValuesCorrectly() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -120,9 +96,9 @@ public class DefaultHyperLogLogOperationsTests<K, V> {
 		assertThat(hyperLogLogOps.size(key)).isEqualTo(3L);
 	}
 
-	@Test // DATAREDIS-308
+	@ParameterizedRedisTest // DATAREDIS-308
 	@SuppressWarnings("unchecked")
-	public void sizeShouldCountValuesOfMultipleKeysCorrectly() {
+	void sizeShouldCountValuesOfMultipleKeysCorrectly() {
 
 		K key = keyFactory.instance();
 		V v1 = valueFactory.instance();
@@ -138,9 +114,9 @@ public class DefaultHyperLogLogOperationsTests<K, V> {
 		assertThat(hyperLogLogOps.size(key, key2)).isGreaterThan(3L);
 	}
 
-	@Test // DATAREDIS-308
+	@ParameterizedRedisTest // DATAREDIS-308
 	@SuppressWarnings("unchecked")
-	public void unionShouldMergeValuesOfMultipleKeysCorrectly() throws InterruptedException {
+	void unionShouldMergeValuesOfMultipleKeysCorrectly() throws InterruptedException {
 
 		K sourceKey_1 = keyFactory.instance();
 		V v1 = valueFactory.instance();

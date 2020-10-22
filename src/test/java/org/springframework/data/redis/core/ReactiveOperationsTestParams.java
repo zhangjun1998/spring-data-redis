@@ -39,10 +39,12 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.OxmSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.extension.RedisStanalone;
 import org.springframework.data.redis.test.util.RedisClusterRule;
+import org.springframework.lang.Nullable;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
 /**
@@ -53,7 +55,7 @@ import org.springframework.oxm.xstream.XStreamMarshaller;
  */
 abstract public class ReactiveOperationsTestParams {
 
-	public static Collection<Object[]> testParams() {
+	public static Collection<Fixture<?, ?>> testParams() {
 
 		ObjectFactory<String> stringFactory = new StringObjectFactory();
 		ObjectFactory<String> clusterKeyStringFactory = new PrefixStringObjectFactory("{u1}.", stringFactory);
@@ -112,22 +114,23 @@ abstract public class ReactiveOperationsTestParams {
 		ReactiveRedisTemplate<String, Person> genericJackson2JsonPersonTemplate = new ReactiveRedisTemplate(
 				lettuceConnectionFactory, RedisSerializationContext.fromSerializer(genericJackson2JsonSerializer));
 
-		List<Object[]> list = Arrays.asList(new Object[][] { //
-				{ stringTemplate, stringFactory, stringFactory, stringRedisSerializer, "String" }, //
-				{ objectTemplate, personFactory, personFactory, jdkSerializationRedisSerializer, "Person/JDK" }, //
-				{ longTemplate, stringFactory, longFactory, longToStringSerializer, "Long" }, //
-				{ doubleTemplate, stringFactory, doubleFactory, doubleToStringSerializer, "Double" }, //
-				{ rawTemplate, rawFactory, rawFactory, null, "raw" }, //
-				{ personTemplate, stringFactory, personFactory, jdkSerializationRedisSerializer, "String/Person/JDK" }, //
-				{ xstreamStringTemplate, stringFactory, stringFactory, oxmSerializer, "String/OXM" }, //
-				{ xstreamPersonTemplate, stringFactory, personFactory, oxmSerializer, "String/Person/OXM" }, //
-				{ jackson2JsonPersonTemplate, stringFactory, personFactory, jackson2JsonSerializer, "Jackson2" }, //
-				{ genericJackson2JsonPersonTemplate, stringFactory, personFactory, genericJackson2JsonSerializer,
-						"Generic Jackson 2" } });
+		List<Fixture<?, ?>> list = Arrays.asList( //
+				new Fixture<>(stringTemplate, stringFactory, stringFactory, stringRedisSerializer, "String"), //
+				new Fixture<>(objectTemplate, personFactory, personFactory, jdkSerializationRedisSerializer, "Person/JDK"), //
+				new Fixture<>(longTemplate, stringFactory, longFactory, longToStringSerializer, "Long"), //
+				new Fixture<>(doubleTemplate, stringFactory, doubleFactory, doubleToStringSerializer, "Double"), //
+				new Fixture<>(rawTemplate, rawFactory, rawFactory, null, "raw"), //
+				new Fixture<>(personTemplate, stringFactory, personFactory, jdkSerializationRedisSerializer,
+						"String/Person/JDK"), //
+				new Fixture<>(xstreamStringTemplate, stringFactory, stringFactory, oxmSerializer, "String/OXM"), //
+				new Fixture<>(xstreamPersonTemplate, stringFactory, personFactory, oxmSerializer, "String/Person/OXM"), //
+				new Fixture<>(jackson2JsonPersonTemplate, stringFactory, personFactory, jackson2JsonSerializer, "Jackson2"), //
+				new Fixture<>(genericJackson2JsonPersonTemplate, stringFactory, personFactory, genericJackson2JsonSerializer,
+						"Generic Jackson 2"));
 
 		if (clusterAvailable()) {
 
-			ReactiveRedisTemplate<String, String> clusterStringTemplate = null;
+			ReactiveRedisTemplate<String, String> clusterStringTemplate;
 
 			LettuceConnectionFactory lettuceClusterConnectionFactory = LettuceConnectionFactoryExtension
 					.getConnectionFactory(RedisCluster.class);
@@ -136,8 +139,8 @@ abstract public class ReactiveOperationsTestParams {
 					RedisSerializationContext.string());
 
 			list = new ArrayList<>(list);
-			list.add(new Object[] { clusterStringTemplate, clusterKeyStringFactory, stringFactory, stringRedisSerializer,
-					"Cluster String" });
+			list.add(new Fixture<>(clusterStringTemplate, clusterKeyStringFactory, stringFactory, stringRedisSerializer,
+					"Cluster String"));
 		}
 
 		return list;
@@ -156,6 +159,51 @@ abstract public class ReactiveOperationsTestParams {
 			return false;
 		}
 		return true;
+	}
+
+	static class Fixture<K, V> {
+
+		private final ReactiveRedisTemplate<K, V> template;
+		private final ObjectFactory<K> keyFactory;
+		private final ObjectFactory<V> valueFactory;
+		private final @Nullable RedisSerializer<K> serializer;
+		private final String label;
+
+		public Fixture(ReactiveRedisTemplate<?, ?> template, ObjectFactory<K> keyFactory, ObjectFactory<V> valueFactory,
+				@Nullable RedisSerializer<?> serializer, String label) {
+
+			this.template = (ReactiveRedisTemplate) template;
+			this.keyFactory = keyFactory;
+			this.valueFactory = valueFactory;
+			this.serializer = (RedisSerializer) serializer;
+			this.label = label;
+		}
+
+		public ReactiveRedisTemplate<K, V> getTemplate() {
+			return template;
+		}
+
+		public ObjectFactory<K> getKeyFactory() {
+			return keyFactory;
+		}
+
+		public ObjectFactory<V> getValueFactory() {
+			return valueFactory;
+		}
+
+		@Nullable
+		public RedisSerializer getSerializer() {
+			return serializer;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
 	}
 
 }
