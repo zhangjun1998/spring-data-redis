@@ -18,8 +18,6 @@ package org.springframework.data.redis.listener;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.junit.runners.model.Statement;
-
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.Person;
 import org.springframework.data.redis.PersonObjectFactory;
@@ -31,9 +29,9 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.connection.lettuce.extension.LettuceConnectionFactoryExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.test.condition.RedisDetector;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.extension.RedisStanalone;
-import org.springframework.data.redis.test.util.RedisClusterRule;
 
 /**
  * @author Costin Leau
@@ -104,17 +102,6 @@ public class PubSubTestParams {
 	}
 
 	private static boolean clusterAvailable() {
-
-		try {
-			new RedisClusterRule().apply(new Statement() {
-				@Override
-				public void evaluate() {
-
-				}
-			}, null).evaluate();
-		} catch (Throwable throwable) {
-			return false;
-		}
-		return true;
+		return RedisDetector.isClusterAvailable();
 	}
 }

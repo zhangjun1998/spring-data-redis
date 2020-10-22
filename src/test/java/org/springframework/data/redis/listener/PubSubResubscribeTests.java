@@ -47,11 +47,11 @@ import org.springframework.data.redis.connection.lettuce.extension.LettuceConnec
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.test.condition.RedisDetector;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.extension.RedisStanalone;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.data.redis.test.util.RedisClusterRule;
 
 /**
  * @author Costin Leau
@@ -290,7 +290,7 @@ public class PubSubResubscribeTests {
 	}
 
 	private static boolean clusterAvailable() {
-		return new RedisClusterRule().isAvailable();
+		return RedisDetector.isClusterAvailable();
 	}
 
 	private static boolean isClusterAware(RedisConnectionFactory connectionFactory) {

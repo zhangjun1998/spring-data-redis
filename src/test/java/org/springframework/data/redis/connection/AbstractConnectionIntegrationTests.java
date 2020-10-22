@@ -77,10 +77,10 @@ import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.core.types.RedisClientInfo;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.test.condition.EnabledOnCommand;
+import org.springframework.data.redis.test.condition.EnabledOnRedisDriver;
 import org.springframework.data.redis.test.condition.LongRunningTest;
+import org.springframework.data.redis.test.condition.RedisDriver;
 import org.springframework.data.redis.test.util.HexStringUtils;
-import org.springframework.data.redis.test.util.RedisDriver;
-import org.springframework.data.redis.test.util.WithRedisDriver;
 
 /**
  * Base test class for AbstractConnection integration tests
@@ -112,7 +112,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	protected List<Object> actual = new ArrayList<>();
 
-	@Autowired @WithRedisDriver.DriverQualifier protected RedisConnectionFactory connectionFactory;
+	@Autowired @EnabledOnRedisDriver.DriverQualifier protected RedisConnectionFactory connectionFactory;
 
 	protected RedisConnection byteConnection;
 
@@ -1406,7 +1406,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1196
 	@EnabledOnCommand("LPOS")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void lPos() {
 
 		actual.add(connection.rPush("mylist", "a", "b", "c", "1", "2", "3", "c", "c"));
@@ -1417,7 +1417,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1196
 	@EnabledOnCommand("LPOS")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void lPosRank() {
 
 		actual.add(connection.rPush("mylist", "a", "b", "c", "1", "2", "3", "c", "c"));
@@ -1428,7 +1428,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1196
 	@EnabledOnCommand("LPOS")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void lPosNegativeRank() {
 
 		actual.add(connection.rPush("mylist", "a", "b", "c", "1", "2", "3", "c", "c"));
@@ -1439,7 +1439,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1196
 	@EnabledOnCommand("LPOS")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void lPosCount() {
 
 		actual.add(connection.rPush("mylist", "a", "b", "c", "1", "2", "3", "c", "c"));
@@ -1450,7 +1450,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1196
 	@EnabledOnCommand("LPOS")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void lPosRankCount() {
 
 		actual.add(connection.rPush("mylist", "a", "b", "c", "1", "2", "3", "c", "c"));
@@ -1461,7 +1461,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1196
 	@EnabledOnCommand("LPOS")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void lPosCountZero() {
 
 		actual.add(connection.rPush("mylist", "a", "b", "c", "1", "2", "3", "c", "c"));
@@ -2647,7 +2647,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@WithRedisDriver({ RedisDriver.JEDIS })
+	@EnabledOnRedisDriver({ RedisDriver.JEDIS })
 	void geoHash() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2660,7 +2660,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // DATAREDIS-438
-	@WithRedisDriver({ RedisDriver.JEDIS })
+	@EnabledOnRedisDriver({ RedisDriver.JEDIS })
 	void geoHashNonExisting() {
 
 		String key = "geo-" + UUID.randomUUID();
@@ -2990,7 +2990,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-864
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xAddShouldCreateStream() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3004,7 +3004,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-864
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xReadShouldReadMessage() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3020,7 +3020,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-864
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xReadGroupShouldReadMessage() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3042,7 +3042,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-864
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xGroupCreateShouldWorkWithAndWithoutExistingStream() {
 
 		actual.add(connection.xGroupCreate(KEY_1, ReadOffset.from("0"), "my-group", true));
@@ -3065,7 +3065,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-864
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xRangeShouldReportMessages() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3086,7 +3086,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-864
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xRevRangeShouldReportMessages() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3108,7 +3108,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1207
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xRevRangeShouldWorkWithBoundedRange() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3130,7 +3130,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1084
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xPendingShouldLoadOverviewCorrectly() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3152,7 +3152,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1084
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xPendingShouldLoadEmptyOverviewCorrectly() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3171,7 +3171,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1084
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xPendingShouldLoadPendingMessages() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3194,7 +3194,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1207
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xPendingShouldWorkWithBoundedRange() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3217,7 +3217,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1084
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xPendingShouldLoadPendingMessagesForConsumer() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3241,7 +3241,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1084
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xPendingShouldLoadPendingMessagesForNonExistingConsumer() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3261,7 +3261,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1084
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xPendingShouldLoadEmptyPendingMessages() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3278,7 +3278,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1084
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	public void xClaim() throws InterruptedException {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3299,7 +3299,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1119
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xinfo() {
 
 		actual.add(connection.xGroupCreate(KEY_1, ReadOffset.from("0"), "my-group-without-stream", true));
@@ -3328,7 +3328,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1119
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xinfoNoGroup() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3353,7 +3353,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1119
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xinfoGroups() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3378,7 +3378,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1119
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xinfoGroupsNoGroup() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3395,7 +3395,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1119
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xinfoGroupsNoConsumer() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3418,7 +3418,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1119
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xinfoConsumers() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));
@@ -3442,7 +3442,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test // DATAREDIS-1119
 	@EnabledOnCommand("XADD")
-	@WithRedisDriver({ RedisDriver.LETTUCE })
+	@EnabledOnRedisDriver({ RedisDriver.LETTUCE })
 	void xinfoConsumersNoConsumer() {
 
 		actual.add(connection.xAdd(KEY_1, Collections.singletonMap(KEY_2, VALUE_2)));

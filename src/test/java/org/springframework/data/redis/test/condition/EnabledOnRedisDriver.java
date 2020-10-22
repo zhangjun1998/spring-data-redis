@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.redis.test.util;
+package org.springframework.data.redis.test.condition;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,11 +22,9 @@ import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.springframework.data.redis.test.condition.EnabledOnRedisDriverCondition;
-
 /**
- * {@code @WithRedisDriver} is used to signal that the annotated test class or test method is only <em>enabled</em> when
- * one of the {@link #value() specified Redis Clients} is used.
+ * {@code @EnabledOnRedisDriver} is used to signal that the annotated test class or test method is only <em>enabled</em>
+ * when one of the {@link #value() specified Redis Clients} is used.
  * <p>
  * This annotation must be used in combination with {@link DriverQualifier @DriverQualifier} so the extension can
  * identify the driver from a {@link org.springframework.data.redis.connection.RedisConnectionFactory}.
@@ -42,8 +40,11 @@ import org.springframework.data.redis.test.condition.EnabledOnRedisDriverConditi
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(EnabledOnRedisDriverCondition.class)
-public @interface WithRedisDriver {
+public @interface EnabledOnRedisDriver {
 
+	/**
+	 * One or more Redis drivers that enable the condition.
+	 */
 	RedisDriver[] value() default {};
 
 	/**

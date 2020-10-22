@@ -42,9 +42,9 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.test.condition.EnabledOnCommand;
+import org.springframework.data.redis.test.condition.EnabledOnRedisDriver;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.data.redis.test.util.WithRedisDriver;
 
 /**
  * Integration test of {@link DefaultStreamOperations}
@@ -57,7 +57,7 @@ import org.springframework.data.redis.test.util.WithRedisDriver;
 public class DefaultStreamOperationsIntegrationTests<K, HK, HV> {
 
 	private final RedisTemplate<K, ?> redisTemplate;
-	private final @WithRedisDriver.DriverQualifier RedisConnectionFactory connectionFactory;
+	private final @EnabledOnRedisDriver.DriverQualifier RedisConnectionFactory connectionFactory;
 
 	private final ObjectFactory<K> keyFactory;
 	private final ObjectFactory<HK> hashKeyFactory;

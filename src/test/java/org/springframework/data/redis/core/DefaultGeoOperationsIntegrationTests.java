@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.ClassRule;
 import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.data.geo.Circle;
@@ -38,7 +37,6 @@ import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
 import org.springframework.data.redis.test.condition.EnabledOnCommand;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
 
 /**
  * Integration test of {@link org.springframework.data.redis.core.DefaultGeoOperations}
@@ -50,8 +48,6 @@ import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
 @MethodSource("testParams")
 @EnabledOnCommand("GEOADD")
 public class DefaultGeoOperationsIntegrationTests<K, M> {
-
-	public static @ClassRule MinimumRedisVersionRule versionRule = new MinimumRedisVersionRule();
 
 	private static final Point POINT_ARIGENTO = new Point(13.583333, 37.316667);
 	private static final Point POINT_CATANIA = new Point(15.087269, 37.502669);

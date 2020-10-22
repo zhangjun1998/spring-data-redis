@@ -30,31 +30,31 @@ import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.test.util.RedisDriver;
-import org.springframework.data.redis.test.util.WithRedisDriver;
 
 /**
- * {@link ExecutionCondition} for {@link EnabledOnRedisDriverCondition @WithRedisDriver}.
+ * {@link ExecutionCondition} for {@link EnabledOnRedisDriverCondition @EnabledOnRedisDriver}.
  *
  * @author Mark Paluch
- * @see WithRedisDriver
+ * @see EnabledOnRedisDriver
  */
-public class EnabledOnRedisDriverCondition implements ExecutionCondition {
+class EnabledOnRedisDriverCondition implements ExecutionCondition {
 
 	private static final ConditionEvaluationResult ENABLED_BY_DEFAULT = enabled("@WithRedisDriver is not present");
 
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 
-		Optional<WithRedisDriver> optional = AnnotationUtils.findAnnotation(context.getElement(), WithRedisDriver.class);
+		Optional<EnabledOnRedisDriver> optional = AnnotationUtils.findAnnotation(context.getElement(),
+				EnabledOnRedisDriver.class);
 
 		if (optional.isPresent()) {
 
-			WithRedisDriver annotation = optional.get();
+			EnabledOnRedisDriver annotation = optional.get();
 			Class<?> testClass = context.getRequiredTestClass();
 
 			List<Field> annotatedFields = AnnotationUtils.findAnnotatedFields(testClass,
-					WithRedisDriver.DriverQualifier.class, it -> RedisConnectionFactory.class.isAssignableFrom(it.getType()));
+					EnabledOnRedisDriver.DriverQualifier.class,
+					it -> RedisConnectionFactory.class.isAssignableFrom(it.getType()));
 
 			if (annotatedFields.isEmpty()) {
 				throw new IllegalStateException(
