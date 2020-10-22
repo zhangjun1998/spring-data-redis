@@ -1789,7 +1789,7 @@ public class DefaultStringRedisConnectionPipelineTxTests extends DefaultStringRe
 	}
 
 	@Test // DATAREDIS-864
-	void xGroupDelComsumerShouldDelegateAndConvertCorrectly() {
+	public void xGroupDelConsumerShouldDelegateAndConvertCorrectly() {
 
 		doReturn(Collections.singletonList(Collections.singletonList(Boolean.TRUE))).when(nativeConnection).closePipeline();
 		super.xGroupDelConsumerShouldDelegateAndConvertCorrectly();
