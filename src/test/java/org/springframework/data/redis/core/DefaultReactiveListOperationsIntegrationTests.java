@@ -30,9 +30,10 @@ import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveOperationsTestParams.Fixture;
+import org.springframework.data.redis.test.condition.EnabledIfLongRunningTest;
+import org.springframework.data.redis.test.condition.EnabledOnCommand;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.test.annotation.IfProfileValue;
 
 /**
  * Integration tests for {@link DefaultReactiveListOperations}.
@@ -352,7 +353,7 @@ public class DefaultReactiveListOperationsIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	void indexOf() {
 
 		K key = keyFactory.instance();
@@ -366,7 +367,7 @@ public class DefaultReactiveListOperationsIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-1196
-	@IfProfileValue(name = "redisVersion", value = "6.0.6+")
+	@EnabledOnCommand("LPOS")
 	void lastIndexOf() {
 
 		K key = keyFactory.instance();
@@ -461,6 +462,7 @@ public class DefaultReactiveListOperationsIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-602
+	@EnabledIfLongRunningTest
 	void rightPopAndLeftPushWithTimeout() {
 
 		assumeThat(valueFactory instanceof ByteBufferObjectFactory).isFalse();

@@ -106,9 +106,9 @@ public class RedisTemplateIntegrationTests<K, V> {
 		byte[] serializedValue = redisTemplate.dump(key1);
 		assertThat(serializedValue).isNotNull();
 		redisTemplate.delete(key1);
-		redisTemplate.restore(key1, serializedValue, 200, TimeUnit.MILLISECONDS);
+		redisTemplate.restore(key1, serializedValue, 10000, TimeUnit.MILLISECONDS);
 		assertThat(redisTemplate.boundValueOps(key1).get()).isEqualTo(value1);
-		waitFor(() -> (!redisTemplate.hasKey(key1)), 400);
+		assertThat(redisTemplate.getExpire(key1)).isGreaterThan(1L);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -450,8 +450,6 @@ public class RedisTemplateIntegrationTests<K, V> {
 		redisTemplate.expire(key1, 500, TimeUnit.MILLISECONDS);
 
 		assertThat(redisTemplate.getExpire(key1, TimeUnit.MILLISECONDS)).isGreaterThan(0L);
-		// Timeout is longer because expire will be 1 sec if pExpire not supported
-		waitFor(() -> (!redisTemplate.hasKey(key1)), 1500L);
 	}
 
 	@ParameterizedRedisTest

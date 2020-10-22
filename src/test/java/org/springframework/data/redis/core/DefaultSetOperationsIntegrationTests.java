@@ -28,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.test.annotation.IfProfileValue;
 
 /**
  * Integration test of {@link DefaultSetOperations}
@@ -200,7 +199,6 @@ public class DefaultSetOperationsIntegrationTests<K, V> {
 
 	@ParameterizedRedisTest // DATAREDIS-304
 	@SuppressWarnings("unchecked")
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
 	void testSSCanReadsValuesFully() throws IOException {
 
 		K key = keyFactory.instance();

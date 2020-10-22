@@ -36,30 +36,38 @@ import org.junit.jupiter.api.Test;
  */
 abstract public class AbstractConnectionPipelineIntegrationTests extends AbstractConnectionIntegrationTests {
 
+	@Override
 	@Disabled
-	public void testNullKey() throws Exception {}
+	public void testNullKey() {}
 
+	@Override
 	@Disabled
-	public void testNullValue() throws Exception {}
+	public void testNullValue() {}
 
+	@Override
 	@Disabled
-	public void testHashNullKey() throws Exception {}
+	public void testHashNullKey() {}
 
+	@Override
 	@Disabled
-	public void testHashNullValue() throws Exception {}
+	public void testHashNullValue() {}
 
+	@Override
 	@Disabled("Pub/Sub not supported while pipelining")
 	public void testPubSubWithNamedChannels() throws Exception {}
 
+	@Override
 	@Disabled("Pub/Sub not supported while pipelining")
 	public void testPubSubWithPatterns() throws Exception {}
 
+	@Override
 	@Test
 	public void testExecWithoutMulti() {
 		connection.exec();
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
+	@Override
 	@Test
 	public void testErrorInTx() {
 
@@ -71,6 +79,7 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
+	@Override
 	@Test
 	public void exceptionExecuteNative() {
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(() -> {
@@ -79,24 +88,28 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 		});
 	}
 
+	@Override
 	@Test
 	public void testEvalShaNotFound() {
 		connection.evalSha("somefakesha", ReturnType.VALUE, 2, "key1", "key2");
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
+	@Override
 	@Test
 	public void testEvalReturnSingleError() {
 		connection.eval("return redis.call('expire','foo')", ReturnType.BOOLEAN, 0);
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
+	@Override
 	@Test
 	public void testRestoreBadData() {
 		connection.restore("testing".getBytes(), 0, "foo".getBytes());
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
+	@Override
 	@Test
 	public void testRestoreExistingKey() {
 		actual.add(connection.set("testing", "12"));
@@ -107,10 +120,12 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
+	@Override
 	@Test
 	@Disabled
 	public void testEvalArrayScriptError() {}
 
+	@Override
 	@Test
 	public void testEvalShaArrayError() {
 		connection.evalSha("notasha", ReturnType.MULTI, 1, "key1", "arg1");
@@ -138,16 +153,19 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 		super.scanShouldReadEntireValueRangeWhenIdividualScanIterationsReturnEmptyCollection();
 	}
 
+	@Override
 	@Test
 	@Disabled
 	public void xClaim() throws InterruptedException {
 		super.xClaim();
 	}
 
+	@Override
 	protected void initConnection() {
 		connection.openPipeline();
 	}
 
+	@Override
 	protected void verifyResults(List<Object> expected) {
 		List<Object> expectedPipeline = new ArrayList<>();
 		for (int i = 0; i < actual.size(); i++) {
@@ -158,6 +176,7 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 		assertThat(results).isEqualTo(expected);
 	}
 
+	@Override
 	protected List<Object> getResults() {
 
 		try {

@@ -65,7 +65,6 @@ import org.springframework.data.redis.test.condition.EnabledOnRedisClusterAvaila
 import org.springframework.data.redis.test.extension.LettuceExtension;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.util.HexStringUtils;
-import org.springframework.test.annotation.IfProfileValue;
 
 /**
  * @author Christoph Strobl
@@ -492,20 +491,17 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoAddMultipleGeoLocations() {
 		assertThat(clusterConnection.geoAdd(KEY_1_BYTES,
 				Arrays.asList(PALERMO_BYTES, ARIGENTO_BYTES, CATANIA_BYTES, PALERMO_BYTES))).isEqualTo(3L);
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoAddSingleGeoLocation() {
 		assertThat(clusterConnection.geoAdd(KEY_1_BYTES, PALERMO_BYTES)).isEqualTo(1L);
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoDist() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -518,7 +514,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoDistWithMetric() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -533,7 +528,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoHash() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -544,7 +538,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoHashNonExisting() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -556,7 +549,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoPosition() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -572,7 +564,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoPositionNonExisting() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -591,7 +582,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoRadiusByMemberShouldApplyLimit() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -605,7 +595,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoRadiusByMemberShouldReturnDistanceCorrectly() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -621,7 +610,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoRadiusByMemberShouldReturnMembersCorrectly() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -636,7 +624,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoRadiusShouldApplyLimit() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -650,7 +637,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoRadiusShouldReturnDistanceCorrectly() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -666,7 +652,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoRadiusShouldReturnMembersCorrectly() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -679,7 +664,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-438
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	public void geoRemoveDeletesMembers() {
 
 		nativeConnection.geoadd(KEY_1, PALERMO.getPoint().getX(), PALERMO.getPoint().getY(), PALERMO.getName());
@@ -2404,7 +2388,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	void bitFieldSetShouldWorkCorrectly() {
 
 		assertThat(clusterConnection.stringCommands().bitField(JedisConverters.toBytes(KEY_1),
@@ -2414,7 +2397,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	void bitFieldGetShouldWorkCorrectly() {
 
 		assertThat(clusterConnection.stringCommands().bitField(JedisConverters.toBytes(KEY_1),
@@ -2422,7 +2404,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	void bitFieldIncrByShouldWorkCorrectly() {
 
 		assertThat(clusterConnection.stringCommands().bitField(JedisConverters.toBytes(KEY_1),
@@ -2430,7 +2411,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	void bitFieldIncrByWithOverflowShouldWorkCorrectly() {
 
 		assertThat(clusterConnection.stringCommands().bitField(JedisConverters.toBytes(KEY_1),
@@ -2447,7 +2427,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	void bitfieldShouldAllowMultipleSubcommands() {
 
 		assertThat(clusterConnection.stringCommands().bitField(JedisConverters.toBytes(KEY_1),
@@ -2456,7 +2435,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-562
-	@IfProfileValue(name = "redisVersion", value = "3.2+")
 	void bitfieldShouldWorkUsingNonZeroBasedOffset() {
 
 		assertThat(

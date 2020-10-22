@@ -37,7 +37,6 @@ import org.springframework.data.redis.connection.RedisZSetCommands.Weights;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.test.annotation.IfProfileValue;
 
 /**
  * Integration test of {@link DefaultZSetOperations}
@@ -375,7 +374,6 @@ public class DefaultZSetOperationsIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-306
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
 	void testZScanShouldReadEntireValueRange() throws IOException {
 
 		K key = keyFactory.instance();

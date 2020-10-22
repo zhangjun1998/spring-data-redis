@@ -30,22 +30,32 @@ import org.junit.jupiter.api.Test;
  */
 abstract public class AbstractConnectionTransactionIntegrationTests extends AbstractConnectionIntegrationTests {
 
+	@Test
+	@Override
 	@Disabled
 	public void testMultiDiscard() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testMultiExec() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testUnwatch() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testWatch() {}
 
+	@Override
 	@Disabled
 	@Test
 	public void testExecWithoutMulti() {}
 
+	@Override
 	@Disabled
 	@Test
 	public void testErrorInTx() {}
@@ -56,41 +66,65 @@ abstract public class AbstractConnectionTransactionIntegrationTests extends Abst
 	 * clients to perform a push operation. *
 	 */
 
+	@Test
+	@Override
 	@Disabled
 	public void testBLPop() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testBRPop() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testBRPopLPush() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testBLPopTimeout() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testBRPopTimeout() {}
 
+	@Test
+	@Override
 	@Disabled
 	public void testBRPopLPushTimeout() {}
 
+	@Test
+	@Override
 	@Disabled("Pub/Sub not supported with transactions")
 	public void testPubSubWithNamedChannels() throws Exception {}
 
+	@Test
+	@Override
 	@Disabled("Pub/Sub not supported with transactions")
 	public void testPubSubWithPatterns() throws Exception {}
 
+	@Test
+	@Override
 	@Disabled
-	public void testNullKey() throws Exception {}
+	public void testNullKey() {}
 
+	@Test
+	@Override
 	@Disabled
-	public void testNullValue() throws Exception {}
+	public void testNullValue() {}
 
+	@Test
+	@Override
 	@Disabled
-	public void testHashNullKey() throws Exception {}
+	public void testHashNullKey() {}
 
+	@Test
+	@Override
 	@Disabled
-	public void testHashNullValue() throws Exception {}
+	public void testHashNullValue() {}
 
 	@Test
 	public void testWatchWhileInTx() {
@@ -111,20 +145,24 @@ abstract public class AbstractConnectionTransactionIntegrationTests extends Abst
 		super.scanShouldReadEntireValueRangeWhenIdividualScanIterationsReturnEmptyCollection();
 	}
 
+	@Override
 	@Test
 	@Disabled
 	public void xClaim() throws InterruptedException {
 		super.xClaim();
 	}
 
+	@Override
 	protected void initConnection() {
 		connection.multi();
 	}
 
+	@Override
 	protected List<Object> getResults() {
 		return connection.exec();
 	}
 
+	@Override
 	protected void verifyResults(List<Object> expected) {
 		List<Object> expectedTx = new ArrayList<>();
 		for (int i = 0; i < actual.size(); i++) {

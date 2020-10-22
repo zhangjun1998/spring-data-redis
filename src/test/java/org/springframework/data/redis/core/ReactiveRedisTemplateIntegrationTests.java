@@ -50,6 +50,7 @@ import org.springframework.data.redis.serializer.RedisElementReader;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.test.condition.EnabledIfLongRunningTest;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
@@ -431,6 +432,7 @@ public class ReactiveRedisTemplateIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-612
+	@EnabledIfLongRunningTest
 	void listenToChannelShouldReceiveChannelMessagesCorrectly() throws InterruptedException {
 
 		String channel = "my-channel";
@@ -452,6 +454,7 @@ public class ReactiveRedisTemplateIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-612
+	@EnabledIfLongRunningTest
 	void listenToChannelPatternShouldReceiveChannelMessagesCorrectly() throws InterruptedException {
 
 		String channel = "my-channel";
