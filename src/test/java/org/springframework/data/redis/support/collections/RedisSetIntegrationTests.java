@@ -23,7 +23,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  *
  * @author Costin Leau
  */
-public class RedisSetTests extends AbstractRedisSetTests<Object> {
+public class RedisSetIntegrationTests extends AbstractRedisSetIntegrationTests<Object> {
 
 	/**
 	 * Constructs a new <code>RedisSetTests</code> instance.
@@ -31,7 +31,7 @@ public class RedisSetTests extends AbstractRedisSetTests<Object> {
 	 * @param factory
 	 * @param template
 	 */
-	public RedisSetTests(ObjectFactory<Object> factory, RedisTemplate template) {
+	public RedisSetIntegrationTests(ObjectFactory<Object> factory, RedisTemplate template) {
 		super(factory, template);
 	}
 

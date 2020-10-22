@@ -21,21 +21,17 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
-import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.core.BoundKeyOperations;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.support.atomic.RedisAtomicInteger;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * @author Costin Leau
@@ -43,8 +39,8 @@ import org.springframework.data.redis.support.atomic.RedisAtomicLong;
  * @author Thomas Darimont
  * @author Christoph Strobl
  */
-@RunWith(Parameterized.class)
-public class BoundKeyOperationsTest {
+@MethodSource("testParams")
+public class BoundKeyOperationsIntegrationTests {
 
 	@SuppressWarnings("rawtypes") //
 	private BoundKeyOperations keyOps;
@@ -55,35 +51,34 @@ public class BoundKeyOperationsTest {
 	private RedisTemplate template;
 
 	@SuppressWarnings("rawtypes")
-	public BoundKeyOperationsTest(BoundKeyOperations<Object> keyOps, ObjectFactory<Object> objFactory,
+	public BoundKeyOperationsIntegrationTests(BoundKeyOperations<Object> keyOps, ObjectFactory<Object> objFactory,
 			RedisTemplate template) {
 		this.objFactory = objFactory;
 		this.keyOps = keyOps;
 		this.template = template;
 	}
 
-	@Before
-	public void setUp() {
+	public static Collection<Object[]> testParams() {
+		return BoundKeyParams.testParams();
+	}
+
+	@BeforeEach
+	void setUp() {
 		populateBoundKey();
 	}
 
 	@SuppressWarnings("unchecked")
-	@After
-	public void tearDown() {
+	@AfterEach
+	void tearDown() {
 		template.execute((RedisCallback<Object>) connection -> {
 			connection.flushDb();
 			return null;
 		});
 	}
 
-	@Parameters
-	public static Collection<Object[]> testParams() {
-		return BoundKeyParams.testParams();
-	}
-
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testRename() throws Exception {
+	@ParameterizedRedisTest
+	void testRename() throws Exception {
 
 		Object key = keyOps.getKey();
 		Object newName = objFactory.instance();
@@ -95,8 +90,8 @@ public class BoundKeyOperationsTest {
 		assertThat(keyOps.getKey()).isEqualTo(key);
 	}
 
-	@Test // DATAREDIS-251
-	public void testExpire() throws Exception {
+	@ParameterizedRedisTest // DATAREDIS-251
+	void testExpire() throws Exception {
 
 		assertThat(keyOps.getExpire()).as(keyOps.getClass().getName() + " -> " + keyOps.getKey())
 				.isEqualTo(Long.valueOf(-1));
@@ -107,8 +102,8 @@ public class BoundKeyOperationsTest {
 		}
 	}
 
-	@Test // DATAREDIS-251
-	public void testPersist() throws Exception {
+	@ParameterizedRedisTest // DATAREDIS-251
+	void testPersist() throws Exception {
 
 		keyOps.persist();
 

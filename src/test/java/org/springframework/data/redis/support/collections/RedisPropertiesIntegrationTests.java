@@ -27,9 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
-
 import org.springframework.data.redis.DoubleAsStringObjectFactory;
 import org.springframework.data.redis.LongAsStringObjectFactory;
 import org.springframework.data.redis.ObjectFactory;
@@ -44,6 +41,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.OxmSerializer;
 import org.springframework.data.redis.test.extension.RedisStanalone;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
 /**
@@ -52,10 +50,10 @@ import org.springframework.oxm.xstream.XStreamMarshaller;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-public class RedisPropertiesTests extends RedisMapTests {
+public class RedisPropertiesIntegrationTests extends RedisMapIntegrationTests {
 
-	protected Properties defaults = new Properties();
-	protected RedisProperties props;
+	private Properties defaults = new Properties();
+	private RedisProperties props;
 
 	/**
 	 * Constructs a new <code>RedisPropertiesTests</code> instance.
@@ -64,7 +62,7 @@ public class RedisPropertiesTests extends RedisMapTests {
 	 * @param valueFactory
 	 * @param template
 	 */
-	public RedisPropertiesTests(ObjectFactory<Object> keyFactory, ObjectFactory<Object> valueFactory,
+	public RedisPropertiesIntegrationTests(ObjectFactory<Object> keyFactory, ObjectFactory<Object> valueFactory,
 			RedisTemplate template) {
 		super(keyFactory, valueFactory, template);
 	}
@@ -79,13 +77,13 @@ public class RedisPropertiesTests extends RedisMapTests {
 		return new RedisProperties(store.getKey(), store.getOperations());
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	public void testGetOperations() {
 		assertThat(map.getOperations() instanceof StringRedisTemplate).isTrue();
 	}
 
-	@Test
-	public void testPropertiesLoad() throws Exception {
+	@ParameterizedRedisTest
+	void testPropertiesLoad() throws Exception {
 		InputStream stream = getClass()
 				.getResourceAsStream("/org/springframework/data/redis/support/collections/props.properties");
 
@@ -105,8 +103,8 @@ public class RedisPropertiesTests extends RedisMapTests {
 		assertThat(props.size()).isEqualTo(size + 3);
 	}
 
-	@Test
-	public void testPropertiesSave() throws Exception {
+	@ParameterizedRedisTest
+	void testPropertiesSave() throws Exception {
 		props.setProperty("x", "y");
 		props.setProperty("a", "b");
 
@@ -114,36 +112,36 @@ public class RedisPropertiesTests extends RedisMapTests {
 		props.store(writer, "no-comment");
 	}
 
-	@Test
-	public void testGetProperty() throws Exception {
+	@ParameterizedRedisTest
+	void testGetProperty() throws Exception {
 		String property = props.getProperty("a");
 		assertThat(property).isNull();
 		defaults.put("a", "x");
 		assertThat(props.getProperty("a")).isEqualTo("x");
 	}
 
-	@Test
-	public void testGetPropertyDefault() throws Exception {
+	@ParameterizedRedisTest
+	void testGetPropertyDefault() throws Exception {
 		assertThat(props.getProperty("a", "x")).isEqualTo("x");
 	}
 
-	@Test
-	public void testSetProperty() throws Exception {
+	@ParameterizedRedisTest
+	void testSetProperty() throws Exception {
 		assertThat(props.getProperty("a")).isNull();
 		defaults.setProperty("a", "x");
 		assertThat(props.getProperty("a")).isEqualTo("x");
 	}
 
-	@Test
-	public void testPropertiesList() throws Exception {
+	@ParameterizedRedisTest
+	void testPropertiesList() throws Exception {
 		defaults.setProperty("a", "b");
 		props.setProperty("x", "y");
 		StringWriter wr = new StringWriter();
 		props.list(new PrintWriter(wr));
 	}
 
-	@Test
-	public void testPropertyNames() throws Exception {
+	@ParameterizedRedisTest
+	void testPropertyNames() throws Exception {
 		String key1 = "foo";
 		String key2 = "x";
 		String key3 = "d";
@@ -163,14 +161,14 @@ public class RedisPropertiesTests extends RedisMapTests {
 		assertThat(names.hasMoreElements()).isFalse();
 	}
 
-	@Test
-	public void testDefaultInit() throws Exception {
+	@ParameterizedRedisTest
+	void testDefaultInit() throws Exception {
 		RedisProperties redisProperties = new RedisProperties("foo", template);
 		redisProperties.propertyNames();
 	}
 
-	@Test
-	public void testStringPropertyNames() throws Exception {
+	@ParameterizedRedisTest
+	void testStringPropertyNames() throws Exception {
 		String key1 = "foo";
 		String key2 = "x";
 		String key3 = "d";
@@ -187,14 +185,13 @@ public class RedisPropertiesTests extends RedisMapTests {
 		assertThat(keys.contains(key3)).isTrue();
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	@Override
 	public void testScanWorksCorrectly() {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> super.testScanWorksCorrectly());
 	}
 
 	// DATAREDIS-241
-	@Parameters
 	public static Collection<Object[]> testParams() {
 
 		// XStream serializer

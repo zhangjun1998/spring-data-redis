@@ -16,7 +16,7 @@
 package org.springframework.data.redis.support.collections;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
+import static org.assertj.core.api.Assumptions.*;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -28,24 +28,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.redis.DoubleAsStringObjectFactory;
 import org.springframework.data.redis.LongAsStringObjectFactory;
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.RedisSystemException;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
-import org.springframework.data.redis.test.util.RedisClientRule;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * Integration test for Redis Map.
@@ -56,34 +51,30 @@ import org.springframework.data.redis.test.util.RedisClientRule;
  * @author Thomas Darimont
  * @author Christian Bühler
  */
-@RunWith(Parameterized.class)
-public abstract class AbstractRedisMapTests<K, V> {
-
-	public @Rule RedisClientRule clientRule = new RedisClientRule() {
-		public RedisConnectionFactory getConnectionFactory() {
-			return template.getConnectionFactory();
-		}
-	};
-
-	public @Rule MinimumRedisVersionRule versionRule = new MinimumRedisVersionRule();
+@MethodSource("testParams")
+public abstract class AbstractRedisMapIntegrationTests<K, V> {
 
 	protected RedisMap<K, V> map;
 	protected ObjectFactory<K> keyFactory;
 	protected ObjectFactory<V> valueFactory;
 	@SuppressWarnings("rawtypes") protected RedisTemplate template;
 
-	abstract RedisMap<K, V> createMap();
-
-	@Before
-	public void setUp() {
-		map = createMap();
-	}
-
 	@SuppressWarnings("rawtypes")
-	public AbstractRedisMapTests(ObjectFactory<K> keyFactory, ObjectFactory<V> valueFactory, RedisTemplate template) {
+	AbstractRedisMapIntegrationTests(ObjectFactory<K> keyFactory, ObjectFactory<V> valueFactory, RedisTemplate template) {
 		this.keyFactory = keyFactory;
 		this.valueFactory = valueFactory;
 		this.template = template;
+	}
+
+	abstract RedisMap<K, V> createMap();
+
+	@BeforeEach
+	void setUp() {
+		template.execute((RedisCallback<Object>) connection -> {
+			connection.flushAll();
+			return null;
+		});
+		map = createMap();
 	}
 
 	protected K getKey() {
@@ -99,17 +90,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		return new DefaultRedisMap(store.getKey(), store.getOperations());
 	}
 
-	@SuppressWarnings("unchecked")
-	@Before
-	public void before() throws Exception {
-		template.execute((RedisCallback<Object>) connection -> {
-			connection.flushAll();
-			return null;
-		});
-	}
-
-	@Test
-	public void testClear() {
+	@ParameterizedRedisTest
+	void testClear() {
 		map.clear();
 		assertThat(map.size()).isEqualTo(0);
 		map.put(getKey(), getValue());
@@ -118,8 +100,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.size()).isEqualTo(0);
 	}
 
-	@Test
-	public void testContainsKey() {
+	@ParameterizedRedisTest
+	void testContainsKey() {
 		K k1 = getKey();
 		K k2 = getKey();
 
@@ -131,41 +113,31 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.containsKey(k2)).isTrue();
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
-	public void testContainsValue() {
+	@ParameterizedRedisTest
+	void testContainsValue() {
 		V v1 = getValue();
-		V v2 = getValue();
 
-		assertThat(map.containsValue(v1)).isFalse();
-		assertThat(map.containsValue(v2)).isFalse();
-		map.put(getKey(), v1);
-		assertThat(map.containsValue(v1)).isTrue();
-		map.put(getKey(), v2);
-		assertThat(map.containsValue(v2)).isTrue();
+		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> map.containsValue(v1));
 	}
 
-	public Set<Entry<K, V>> entrySet() {
-		return map.entrySet();
-	}
-
-	@Test
-	public void testEquals() {
+	@ParameterizedRedisTest
+	void testEquals() {
 		RedisStore clone = copyStore(map);
 		assertThat(map).isEqualTo(clone);
 		assertThat(clone).isEqualTo(clone);
 		assertThat(map).isEqualTo(map);
 	}
 
-	@Test
-	public void testNotEquals() {
+	@ParameterizedRedisTest
+	void testNotEquals() {
 		RedisOperations<String, ?> ops = map.getOperations();
 		RedisStore newInstance = new DefaultRedisMap<>(ops.<K, V> boundHashOps(map.getKey() + ":new"));
 		assertThat(map.equals(newInstance)).isFalse();
 		assertThat(newInstance.equals(map)).isFalse();
 	}
 
-	@Test
-	public void testGet() {
+	@ParameterizedRedisTest
+	void testGet() {
 		K k1 = getKey();
 		V v1 = getValue();
 
@@ -174,25 +146,25 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k1)).isEqualTo(v1);
 	}
 
-	@Test
-	public void testGetKey() {
+	@ParameterizedRedisTest
+	void testGetKey() {
 		assertThat(map.getKey()).isNotNull();
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	public void testGetOperations() {
 		assertThat(map.getOperations()).isEqualTo(template);
 	}
 
-	@Test
-	public void testHashCode() {
+	@ParameterizedRedisTest
+	void testHashCode() {
 		assertThat(map.hashCode()).isNotEqualTo(map.getKey().hashCode());
 		assertThat(copyStore(map).hashCode()).isEqualTo(map.hashCode());
 	}
 
-	@Test
-	public void testIncrementNotNumber() {
-		assumeTrue(!(valueFactory instanceof LongAsStringObjectFactory));
+	@ParameterizedRedisTest
+	void testIncrementNotNumber() {
+		assumeThat(!(valueFactory instanceof LongAsStringObjectFactory)).isTrue();
 		K k1 = getKey();
 		V v1 = getValue();
 
@@ -206,18 +178,18 @@ public abstract class AbstractRedisMapTests<K, V> {
 		}
 	}
 
-	@Test
-	public void testIncrement() {
-		assumeTrue(valueFactory instanceof LongAsStringObjectFactory);
+	@ParameterizedRedisTest
+	void testIncrement() {
+		assumeThat(valueFactory instanceof LongAsStringObjectFactory).isTrue();
 		K k1 = getKey();
 		V v1 = getValue();
 		map.put(k1, v1);
 		assertThat(map.increment(k1, 10)).isEqualTo(Long.valueOf(Long.valueOf((String) v1) + 10));
 	}
 
-	@Test
-	public void testIncrementDouble() {
-		assumeTrue(valueFactory instanceof DoubleAsStringObjectFactory);
+	@ParameterizedRedisTest
+	void testIncrementDouble() {
+		assumeThat(valueFactory instanceof DoubleAsStringObjectFactory).isTrue();
 		K k1 = getKey();
 		V v1 = getValue();
 		map.put(k1, v1);
@@ -225,8 +197,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(twoDForm.format(map.increment(k1, 3.4))).isEqualTo(twoDForm.format(Double.valueOf((String) v1) + 3.4));
 	}
 
-	@Test
-	public void testIsEmpty() {
+	@ParameterizedRedisTest
+	void testIsEmpty() {
 		map.clear();
 		assertThat(map.isEmpty()).isTrue();
 		map.put(getKey(), getValue());
@@ -236,8 +208,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testKeySet() {
+	@ParameterizedRedisTest
+	void testKeySet() {
 		map.clear();
 		assertThat(map.keySet().isEmpty()).isTrue();
 		K k1 = getKey();
@@ -253,8 +225,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(keySet.size()).isEqualTo(3);
 	}
 
-	@Test
-	public void testPut() {
+	@ParameterizedRedisTest
+	void testPut() {
 		K k1 = getKey();
 		K k2 = getKey();
 		V v1 = getValue();
@@ -267,8 +239,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k2)).isEqualTo(v2);
 	}
 
-	@Test
-	public void testPutAll() {
+	@ParameterizedRedisTest
+	void testPutAll() {
 
 		Map<K, V> m = new LinkedHashMap<>();
 		K k1 = getKey();
@@ -289,8 +261,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k2)).isEqualTo(v2);
 	}
 
-	@Test
-	public void testRemove() {
+	@ParameterizedRedisTest
+	void testRemove() {
 		K k1 = getKey();
 		K k2 = getKey();
 
@@ -312,8 +284,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k2)).isNull();
 	}
 
-	@Test
-	public void testSize() {
+	@ParameterizedRedisTest
+	void testSize() {
 		assertThat(map.size()).isEqualTo(0);
 		map.put(getKey(), getValue());
 		assertThat(map.size()).isEqualTo(1);
@@ -328,8 +300,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testValues() {
+	@ParameterizedRedisTest
+	void testValues() {
 		V v1 = getValue();
 		V v2 = getValue();
 		V v3 = getValue();
@@ -348,8 +320,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testEntrySet() {
+	@ParameterizedRedisTest
+	void testEntrySet() {
 
 		Set<Entry<K, V>> entries = map.entrySet();
 		assertThat(entries.isEmpty()).isTrue();
@@ -380,8 +352,8 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(values).doesNotContain(v2);
 	}
 
-	@Test
-	public void testPutIfAbsent() {
+	@ParameterizedRedisTest
+	void testPutIfAbsent() {
 
 		K k1 = getKey();
 		K k2 = getKey();
@@ -400,14 +372,14 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k2)).isEqualTo(v2);
 	}
 
-	@Test
-	public void testConcurrentRemove() {
+	@ParameterizedRedisTest
+	void testConcurrentRemove() {
 
 		K k1 = getKey();
 		V v1 = getValue();
 		V v2 = getValue();
 		// No point testing this with byte[], they will never be equal
-		assumeTrue(!(v1 instanceof byte[]));
+		assumeThat(!(v1 instanceof byte[])).isTrue();
 		map.put(k1, v2);
 		assertThat(map.remove(k1, v1)).isFalse();
 		assertThat(map.get(k1)).isEqualTo(v2);
@@ -415,19 +387,19 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k1)).isNull();
 	}
 
-	@Test
-	public void testRemoveNullValue() {
+	@ParameterizedRedisTest
+	void testRemoveNullValue() {
 		assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> map.remove(getKey(), null));
 	}
 
-	@Test
-	public void testConcurrentReplaceTwoArgs() {
+	@ParameterizedRedisTest
+	void testConcurrentReplaceTwoArgs() {
 
 		K k1 = getKey();
 		V v1 = getValue();
 		V v2 = getValue();
 		// No point testing binary data here, as equals will always be false
-		assumeTrue(!(v1 instanceof byte[]));
+		assumeThat(!(v1 instanceof byte[])).isTrue();
 
 		map.put(k1, v1);
 
@@ -437,18 +409,18 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k1)).isEqualTo(v2);
 	}
 
-	@Test
-	public void testReplaceNullOldValue() {
+	@ParameterizedRedisTest
+	void testReplaceNullOldValue() {
 		assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> map.replace(getKey(), null, getValue()));
 	}
 
-	@Test
-	public void testReplaceNullNewValue() {
+	@ParameterizedRedisTest
+	void testReplaceNullNewValue() {
 		assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> map.replace(getKey(), getValue(), null));
 	}
 
-	@Test
-	public void testConcurrentReplaceOneArg() {
+	@ParameterizedRedisTest
+	void testConcurrentReplaceOneArg() {
 
 		K k1 = getKey();
 		V v1 = getValue();
@@ -461,12 +433,12 @@ public abstract class AbstractRedisMapTests<K, V> {
 		assertThat(map.get(k1)).isEqualTo(v2);
 	}
 
-	@Test
-	public void testReplaceNullValue() {
+	@ParameterizedRedisTest
+	void testReplaceNullValue() {
 		assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> map.replace(getKey(), null));
 	}
 
-	@Test // DATAREDIS-314
+	@ParameterizedRedisTest // DATAREDIS-314
 	public void testScanWorksCorrectly() throws IOException {
 
 		K k1 = getKey();

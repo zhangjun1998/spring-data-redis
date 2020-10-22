@@ -19,19 +19,16 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.springframework.data.redis.ConnectionFactoryTracker;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * Integration tests for {@link CompareAndSet}.
@@ -39,8 +36,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-@RunWith(Parameterized.class)
-public class CompareAndSetIntegrationTests {
+@MethodSource("testParams")
+public class CompareAndSetIntegrationIntegrationTests {
 
 	private static final String KEY = "key";
 
@@ -48,7 +45,7 @@ public class CompareAndSetIntegrationTests {
 	private final RedisTemplate<String, Long> template;
 	private final ValueOperations<String, Long> valueOps;
 
-	public CompareAndSetIntegrationTests(RedisConnectionFactory factory) {
+	public CompareAndSetIntegrationIntegrationTests(RedisConnectionFactory factory) {
 
 		this.factory = factory;
 
@@ -61,21 +58,20 @@ public class CompareAndSetIntegrationTests {
 		this.valueOps = this.template.opsForValue();
 	}
 
-	@Parameters
 	public static Collection<Object[]> testParams() {
 		return AtomicCountersParam.testParams();
 	}
 
-	@After
-	public void tearDown() {
+	@BeforeEach
+	void setUp() {
 
 		RedisConnection connection = factory.getConnection();
 		connection.flushDb();
 		connection.close();
 	}
 
-	@Test // DATAREDIS-843
-	public void shouldUpdateCounter() {
+	@ParameterizedRedisTest // DATAREDIS-843
+	void shouldUpdateCounter() {
 
 		long expected = 5;
 		long actual = 5;
@@ -88,8 +84,8 @@ public class CompareAndSetIntegrationTests {
 		assertThat(valueOps.get(KEY)).isEqualTo(update);
 	}
 
-	@Test // DATAREDIS-843
-	public void expectationNotMet() {
+	@ParameterizedRedisTest // DATAREDIS-843
+	void expectationNotMet() {
 
 		long expected = 5;
 		long actual = 7;
@@ -102,8 +98,8 @@ public class CompareAndSetIntegrationTests {
 		assertThat(valueOps.get(KEY)).isNull();
 	}
 
-	@Test // DATAREDIS-843
-	public void concurrentUpdate() {
+	@ParameterizedRedisTest // DATAREDIS-843
+	void concurrentUpdate() {
 
 		long expected = 5;
 		long actual = 5;

@@ -17,33 +17,30 @@ package org.springframework.data.redis.support.collections;
 
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.support.collections.AbstractRedisCollection;
-import org.springframework.data.redis.support.collections.DefaultRedisZSet;
-import org.springframework.data.redis.support.collections.RedisStore;
 
 /**
- * Parameterized instance of Redis sorted set tests.
+ * Parameterized instance of Redis tests.
  *
  * @author Costin Leau
  */
-public class RedisZSetTests extends AbstractRedisZSetTest<Object> {
+public class RedisListIntegrationTests extends AbstractRedisListIntegrationTests<Object> {
 
 	/**
-	 * Constructs a new <code>RedisZSetTests</code> instance.
+	 * Constructs a new <code>RedisListTests</code> instance.
 	 *
 	 * @param factory
-	 * @param template
+	 * @param connFactory
 	 */
-	public RedisZSetTests(ObjectFactory<Object> factory, RedisTemplate template) {
+	public RedisListIntegrationTests(ObjectFactory<Object> factory, RedisTemplate<Object, Object> template) {
 		super(factory, template);
 	}
 
 	RedisStore copyStore(RedisStore store) {
-		return new DefaultRedisZSet(store.getKey().toString(), store.getOperations());
+		return new DefaultRedisList<>(store.getKey(), store.getOperations());
 	}
 
 	AbstractRedisCollection<Object> createCollection() {
 		String redisName = getClass().getName();
-		return new DefaultRedisZSet(redisName, template);
+		return new DefaultRedisList<>(redisName, template);
 	}
 }

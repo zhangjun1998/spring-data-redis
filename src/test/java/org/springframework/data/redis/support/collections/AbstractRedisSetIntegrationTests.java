@@ -24,20 +24,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.data.redis.ObjectFactory;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
-import org.springframework.data.redis.test.util.RedisClientRule;
-import org.springframework.data.redis.test.util.RedisDriver;
-import org.springframework.data.redis.test.util.WithRedisDriver;
-import org.springframework.test.annotation.IfProfileValue;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -47,15 +40,7 @@ import org.springframework.util.ObjectUtils;
  * @author Christoph Strobl
  * @author Thomas Darimont
  */
-public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTests<T> {
-
-	public @Rule RedisClientRule clientRule = new RedisClientRule() {
-		public RedisConnectionFactory getConnectionFactory() {
-			return template.getConnectionFactory();
-		}
-	};
-
-	public @Rule MinimumRedisVersionRule versionRule = new MinimumRedisVersionRule();
+public abstract class AbstractRedisSetIntegrationTests<T> extends AbstractRedisCollectionIntegrationTests<T> {
 
 	protected RedisSet<T> set;
 
@@ -66,12 +51,12 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 	 * @param template
 	 */
 	@SuppressWarnings("rawtypes")
-	public AbstractRedisSetTests(ObjectFactory<T> factory, RedisTemplate template) {
+	AbstractRedisSetIntegrationTests(ObjectFactory<T> factory, RedisTemplate template) {
 		super(factory, template);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		set = (RedisSet<T>) collection;
@@ -82,8 +67,8 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 		return new DefaultRedisSet<>((BoundSetOperations<String, T>) set.getOperations().boundSetOps(key));
 	}
 
-	@Test
-	public void testDiff() {
+	@ParameterizedRedisTest
+	void testDiff() {
 		RedisSet<T> diffSet1 = createSetFor("test:set:diff1");
 		RedisSet<T> diffSet2 = createSetFor("test:set:diff2");
 
@@ -103,8 +88,8 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 		assertThat(diff).contains(t1);
 	}
 
-	@Test
-	public void testDiffAndStore() {
+	@ParameterizedRedisTest
+	void testDiffAndStore() {
 		RedisSet<T> diffSet1 = createSetFor("test:set:diff1");
 		RedisSet<T> diffSet2 = createSetFor("test:set:diff2");
 
@@ -129,8 +114,8 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 		assertThat(diff.getKey()).isEqualTo(resultName);
 	}
 
-	@Test
-	public void testIntersect() {
+	@ParameterizedRedisTest
+	void testIntersect() {
 		RedisSet<T> intSet1 = createSetFor("test:set:int1");
 		RedisSet<T> intSet2 = createSetFor("test:set:int2");
 
@@ -179,8 +164,8 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testUnion() {
+	@ParameterizedRedisTest
+	void testUnion() {
 		RedisSet<T> unionSet1 = createSetFor("test:set:union1");
 		RedisSet<T> unionSet2 = createSetFor("test:set:union2");
 
@@ -202,8 +187,8 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testUnionAndStore() {
+	@ParameterizedRedisTest
+	void testUnionAndStore() {
 		RedisSet<T> unionSet1 = createSetFor("test:set:union1");
 		RedisSet<T> unionSet2 = createSetFor("test:set:union2");
 
@@ -226,7 +211,7 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 		assertThat(union.getKey()).isEqualTo(resultName);
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	public void testIterator() {
 		T t1 = getT();
 		T t2 = getT();
@@ -255,7 +240,7 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
+	@ParameterizedRedisTest
 	public void testToArray() {
 		Object[] expectedArray = new Object[] { getT(), getT(), getT() };
 		List<T> list = (List<T>) Arrays.asList(expectedArray);
@@ -280,7 +265,7 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
+	@ParameterizedRedisTest
 	public void testToArrayWithGenerics() {
 		Object[] expectedArray = new Object[] { getT(), getT(), getT() };
 		List<T> list = (List<T>) Arrays.asList(expectedArray);
@@ -305,10 +290,8 @@ public abstract class AbstractRedisSetTests<T> extends AbstractRedisCollectionTe
 
 	// DATAREDIS-314
 	@SuppressWarnings("unchecked")
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
-	@Test
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
-	public void testScanWorksCorrectly() throws IOException {
+	@ParameterizedRedisTest
+	void testScanWorksCorrectly() throws IOException {
 
 		Object[] expectedArray = new Object[] { getT(), getT(), getT() };
 		collection.addAll((List<T>) Arrays.asList(expectedArray));

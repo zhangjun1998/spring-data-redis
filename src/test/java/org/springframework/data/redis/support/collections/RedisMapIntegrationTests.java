@@ -18,21 +18,18 @@ package org.springframework.data.redis.support.collections;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.runners.Parameterized.Parameters;
 import org.springframework.data.redis.DoubleAsStringObjectFactory;
 import org.springframework.data.redis.LongAsStringObjectFactory;
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.Person;
 import org.springframework.data.redis.PersonObjectFactory;
 import org.springframework.data.redis.RawObjectFactory;
-import org.springframework.data.redis.SettingsUtils;
 import org.springframework.data.redis.StringObjectFactory;
 import org.springframework.data.redis.connection.PoolConfig;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.extension.JedisConnectionFactoryExtension;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.extension.LettuceConnectionFactoryExtension;
-import org.springframework.data.redis.test.extension.LettuceTestClientResources;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -50,10 +47,11 @@ import org.springframework.oxm.xstream.XStreamMarshaller;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-public class RedisMapTests extends AbstractRedisMapTests<Object, Object> {
+public class RedisMapIntegrationTests extends AbstractRedisMapIntegrationTests<Object, Object> {
 
 	@SuppressWarnings("rawtypes")
-	public RedisMapTests(ObjectFactory<Object> keyFactory, ObjectFactory<Object> valueFactory, RedisTemplate template) {
+	public RedisMapIntegrationTests(ObjectFactory<Object> keyFactory, ObjectFactory<Object> valueFactory,
+			RedisTemplate template) {
 		super(keyFactory, valueFactory, template);
 	}
 
@@ -65,7 +63,6 @@ public class RedisMapTests extends AbstractRedisMapTests<Object, Object> {
 
 	// DATAREDIS-241
 	@SuppressWarnings("rawtypes")
-	@Parameters
 	public static Collection<Object[]> testParams() {
 
 		// XStream serializer

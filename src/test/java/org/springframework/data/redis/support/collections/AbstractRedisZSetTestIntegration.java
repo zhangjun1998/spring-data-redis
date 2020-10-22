@@ -25,26 +25,19 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.assertj.core.data.Offset;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.data.redis.DoubleAsStringObjectFactory;
 import org.springframework.data.redis.DoubleObjectFactory;
 import org.springframework.data.redis.LongAsStringObjectFactory;
 import org.springframework.data.redis.LongObjectFactory;
 import org.springframework.data.redis.ObjectFactory;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.BoundZSetOperations;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
-import org.springframework.data.redis.test.util.MinimumRedisVersionRule;
-import org.springframework.data.redis.test.util.RedisClientRule;
-import org.springframework.data.redis.test.util.RedisDriver;
-import org.springframework.data.redis.test.util.WithRedisDriver;
-import org.springframework.test.annotation.IfProfileValue;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * Integration test for Redis ZSet.
@@ -55,17 +48,9 @@ import org.springframework.test.annotation.IfProfileValue;
  * @author Mark Paluch
  * @author Andrey Shlykov
  */
-public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTests<T> {
+public abstract class AbstractRedisZSetTestIntegration<T> extends AbstractRedisCollectionIntegrationTests<T> {
 
-	public @Rule RedisClientRule clientRule = new RedisClientRule() {
-		public RedisConnectionFactory getConnectionFactory() {
-			return template.getConnectionFactory();
-		}
-	};
-
-	public @Rule MinimumRedisVersionRule versionRule = new MinimumRedisVersionRule();
-
-	protected RedisZSet<T> zSet;
+	private RedisZSet<T> zSet;
 
 	/**
 	 * Constructs a new <code>AbstractRedisZSetTest</code> instance.
@@ -74,19 +59,19 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 	 * @param template
 	 */
 	@SuppressWarnings("rawtypes")
-	public AbstractRedisZSetTest(ObjectFactory<T> factory, RedisTemplate template) {
+	AbstractRedisZSetTestIntegration(ObjectFactory<T> factory, RedisTemplate template) {
 		super(factory, template);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		zSet = (RedisZSet<T>) collection;
 	}
 
-	@Test
-	public void testAddWithScore() {
+	@ParameterizedRedisTest
+	void testAddWithScore() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -102,7 +87,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(iterator.hasNext()).isFalse();
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	public void testAdd() {
 		T t1 = getT();
 		T t2 = getT();
@@ -119,8 +104,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(zSet.score(t3)).isEqualTo(d);
 	}
 
-	@Test
-	public void testFirst() {
+	@ParameterizedRedisTest
+	void testFirst() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -129,17 +114,17 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t2, 4);
 		zSet.add(t3, 5);
 
-		assertThat(zSet.size()).isEqualTo(3);
+		assertThat(zSet).hasSize(3);
 		assertThat(zSet.first()).isEqualTo(t1);
 	}
 
-	@Test
-	public void testFirstException() {
+	@ParameterizedRedisTest
+	void testFirstException() {
 		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> zSet.first());
 	}
 
-	@Test
-	public void testLast() {
+	@ParameterizedRedisTest
+	void testLast() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -148,17 +133,17 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t2, 4);
 		zSet.add(t3, 5);
 
-		assertThat(zSet.size()).isEqualTo(3);
+		assertThat(zSet).hasSize(3);
 		assertThat(zSet.last()).isEqualTo(t3);
 	}
 
-	@Test
-	public void testLastException() {
+	@ParameterizedRedisTest
+	void testLastException() {
 		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> zSet.last());
 	}
 
-	@Test
-	public void testRank() {
+	@ParameterizedRedisTest
+	void testRank() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -174,8 +159,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		// assertNull();
 	}
 
-	@Test
-	public void testReverseRank() {
+	@ParameterizedRedisTest
+	void testReverseRank() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -190,8 +175,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(zSet.rank(getT())).isNull();
 	}
 
-	@Test // DATAREDIS-729
-	public void testLexCountUnbounded() {
+	@ParameterizedRedisTest // DATAREDIS-729
+	void testLexCountUnbounded() {
 
 		assumeThat(factory).isOfAnyClassIn(DoubleObjectFactory.class, DoubleAsStringObjectFactory.class,
 				LongAsStringObjectFactory.class, LongObjectFactory.class);
@@ -207,8 +192,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(zSet.lexCount(RedisZSetCommands.Range.unbounded())).isEqualTo(Long.valueOf(3));
 	}
 
-	@Test // DATAREDIS-729
-	public void testLexCountBounded() {
+	@ParameterizedRedisTest // DATAREDIS-729
+	void testLexCountBounded() {
 
 		assumeThat(factory).isOfAnyClassIn(DoubleObjectFactory.class, DoubleAsStringObjectFactory.class,
 				LongAsStringObjectFactory.class, LongObjectFactory.class);
@@ -224,8 +209,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(zSet.lexCount(RedisZSetCommands.Range.range().gt(t1))).isEqualTo(Long.valueOf(2));
 	}
 
-	@Test
-	public void testScore() {
+	@ParameterizedRedisTest
+	void testScore() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -240,8 +225,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(zSet.score(t3)).isEqualTo(Double.valueOf(5));
 	}
 
-	@Test
-	public void testDefaultScore() {
+	@ParameterizedRedisTest
+	void testDefaultScore() {
 		assertThat(zSet.getDefaultScore()).isCloseTo(1, Offset.offset(0d));
 	}
 
@@ -250,9 +235,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		return new DefaultRedisZSet<>((BoundZSetOperations<String, T>) zSet.getOperations().boundZSetOps(key));
 	}
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testIntersectAndStore() {
+	@ParameterizedRedisTest
+	void testIntersectAndStore() {
 
 		RedisZSet<T> interSet1 = createZSetFor("test:zset:inter1");
 		RedisZSet<T> interSet2 = createZSetFor("test:zset:inter");
@@ -274,14 +258,14 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		String resultName = "test:zset:inter:result:1";
 		RedisZSet<T> inter = zSet.intersectAndStore(Arrays.asList(interSet1, interSet2), resultName);
 
-		assertThat(inter.size()).isEqualTo(1);
+		assertThat(inter).hasSize(1);
 		assertThat(inter).contains(t2);
 		assertThat(inter.score(t2)).isEqualTo(Double.valueOf(6));
 		assertThat(inter.getKey()).isEqualTo(resultName);
 	}
 
-	@Test
-	public void testRange() {
+	@ParameterizedRedisTest
+	void testRange() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -291,14 +275,14 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<T> range = zSet.range(1, 2);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 		Iterator<T> iterator = range.iterator();
 		assertThat(iterator.next()).isEqualTo(t2);
 		assertThat(iterator.next()).isEqualTo(t3);
 	}
 
-	@Test
-	public void testRangeWithScores() {
+	@ParameterizedRedisTest
+	void testRangeWithScores() {
 
 		T t1 = getT();
 		T t2 = getT();
@@ -309,7 +293,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<TypedTuple<T>> range = zSet.rangeWithScores(1, 2);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 
 		Iterator<TypedTuple<T>> iterator = range.iterator();
 		TypedTuple<T> tuple1 = iterator.next();
@@ -321,8 +305,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(tuple2.getScore()).isEqualTo(Double.valueOf(3));
 	}
 
-	@Test
-	public void testReverseRange() {
+	@ParameterizedRedisTest
+	void testReverseRange() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -332,14 +316,14 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<T> range = zSet.reverseRange(1, 2);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 		Iterator<T> iterator = range.iterator();
 		assertThat(iterator.next()).isEqualTo(t2);
 		assertThat(iterator.next()).isEqualTo(t1);
 	}
 
-	@Test
-	public void testReverseRangeWithScores() {
+	@ParameterizedRedisTest
+	void testReverseRangeWithScores() {
 
 		T t1 = getT();
 		T t2 = getT();
@@ -350,7 +334,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<TypedTuple<T>> range = zSet.reverseRangeWithScores(1, 2);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 
 		Iterator<TypedTuple<T>> iterator = range.iterator();
 		TypedTuple<T> tuple1 = iterator.next();
@@ -362,8 +346,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(tuple2.getScore()).isEqualTo(Double.valueOf(1));
 	}
 
-	@Test // DATAREDIS-407
-	public void testRangeByLexUnbounded() {
+	@ParameterizedRedisTest // DATAREDIS-407
+	void testRangeByLexUnbounded() {
 
 		assumeThat(factory).isOfAnyClassIn(DoubleObjectFactory.class, DoubleAsStringObjectFactory.class,
 				LongAsStringObjectFactory.class, LongObjectFactory.class);
@@ -377,13 +361,13 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 		Set<T> tuples = zSet.rangeByLex(RedisZSetCommands.Range.unbounded());
 
-		assertThat(tuples.size()).isEqualTo(3);
+		assertThat(tuples).hasSize(3);
 		T tuple = tuples.iterator().next();
 		assertThat(tuple).isEqualTo(t1);
 	}
 
-	@Test // DATAREDIS-407
-	public void testRangeByLexBounded() {
+	@ParameterizedRedisTest // DATAREDIS-407
+	void testRangeByLexBounded() {
 
 		assumeThat(factory).isOfAnyClassIn(DoubleObjectFactory.class, DoubleAsStringObjectFactory.class,
 				LongAsStringObjectFactory.class, LongObjectFactory.class);
@@ -397,13 +381,13 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 		Set<T> tuples = zSet.rangeByLex(RedisZSetCommands.Range.range().gt(t1).lt(t3));
 
-		assertThat(tuples.size()).isEqualTo(1);
+		assertThat(tuples).hasSize(1);
 		T tuple = tuples.iterator().next();
 		assertThat(tuple).isEqualTo(t2);
 	}
 
-	@Test // DATAREDIS-407
-	public void testRangeByLexUnboundedWithLimit() {
+	@ParameterizedRedisTest // DATAREDIS-407
+	void testRangeByLexUnboundedWithLimit() {
 
 		assumeThat(factory).isOfAnyClassIn(DoubleObjectFactory.class, DoubleAsStringObjectFactory.class,
 				LongAsStringObjectFactory.class, LongObjectFactory.class);
@@ -418,13 +402,13 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		Set<T> tuples = zSet.rangeByLex(RedisZSetCommands.Range.unbounded(),
 				RedisZSetCommands.Limit.limit().count(1).offset(1));
 
-		assertThat(tuples.size()).isEqualTo(1);
+		assertThat(tuples).hasSize(1);
 		T tuple = tuples.iterator().next();
 		assertThat(tuple).isEqualTo(t2);
 	}
 
-	@Test // DATAREDIS-407
-	public void testRangeByLexBoundedWithLimit() {
+	@ParameterizedRedisTest // DATAREDIS-407
+	void testRangeByLexBoundedWithLimit() {
 
 		assumeThat(factory).isOfAnyClassIn(DoubleObjectFactory.class,
 				LongAsStringObjectFactory.class, LongObjectFactory.class);
@@ -442,8 +426,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(tuples).hasSize(2).containsSequence(t2, t3);
 	}
 
-	@Test // DATAREDIS-729
-	public void testReverseRangeByLexBoundedWithLimit() {
+	@ParameterizedRedisTest // DATAREDIS-729
+	void testReverseRangeByLexBoundedWithLimit() {
 
 		assumeThat(factory).isOfAnyClassIn(DoubleObjectFactory.class, DoubleAsStringObjectFactory.class,
 				LongAsStringObjectFactory.class, LongObjectFactory.class);
@@ -461,8 +445,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(tuples).hasSize(2).containsSequence(t2, t1);
 	}
 
-	@Test // DATAREDIS-729
-	public void testReverseRangeByScore() {
+	@ParameterizedRedisTest // DATAREDIS-729
+	void testReverseRangeByScore() {
 
 		T t1 = getT();
 		T t2 = getT();
@@ -473,14 +457,14 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<T> range = zSet.reverseRangeByScore(1.5, 3.5);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 		Iterator<T> iterator = range.iterator();
 		assertThat(iterator.next()).isEqualTo(t3);
 		assertThat(iterator.next()).isEqualTo(t2);
 	}
 
-	@Test
-	public void testReverseRangeByScoreWithScores() {
+	@ParameterizedRedisTest
+	void testReverseRangeByScoreWithScores() {
 
 		T t1 = getT();
 		T t2 = getT();
@@ -491,7 +475,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<TypedTuple<T>> range = zSet.reverseRangeByScoreWithScores(1.5, 3.5);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 
 		Iterator<TypedTuple<T>> iterator = range.iterator();
 		TypedTuple<T> tuple1 = iterator.next();
@@ -504,8 +488,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testRangeByScore() {
+	@ParameterizedRedisTest
+	void testRangeByScore() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -515,7 +499,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<T> range = zSet.rangeByScore(1.5, 3.5);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 		assertThat(range).contains(t2, t3);
 
 		Iterator<T> iterator = range.iterator();
@@ -523,8 +507,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(iterator.next()).isEqualTo(t3);
 	}
 
-	@Test
-	public void testRangeByScoreWithScores() {
+	@ParameterizedRedisTest
+	void testRangeByScoreWithScores() {
 
 		T t1 = getT();
 		T t2 = getT();
@@ -535,7 +519,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		zSet.add(t3, 3);
 
 		Set<TypedTuple<T>> range = zSet.rangeByScoreWithScores(1.5, 3.5);
-		assertThat(range.size()).isEqualTo(2);
+		assertThat(range).hasSize(2);
 
 		Iterator<TypedTuple<T>> iterator = range.iterator();
 		TypedTuple<T> tuple1 = iterator.next();
@@ -547,8 +531,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(tuple2.getScore()).isEqualTo(Double.valueOf(3));
 	}
 
-	@Test
-	public void testRemove() {
+	@ParameterizedRedisTest
+	void testRemove() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -561,14 +545,14 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 
 		zSet.remove(1, 2);
 
-		assertThat(zSet.size()).isEqualTo(2);
+		assertThat(zSet).hasSize(2);
 		Iterator<T> iterator = zSet.iterator();
 		assertThat(iterator.next()).isEqualTo(t1);
 		assertThat(iterator.next()).isEqualTo(t4);
 	}
 
-	@Test
-	public void testRemoveByScore() {
+	@ParameterizedRedisTest
+	void testRemoveByScore() {
 		T t1 = getT();
 		T t2 = getT();
 		T t3 = getT();
@@ -581,7 +565,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 
 		zSet.removeByScore(1.5, 2.5);
 
-		assertThat(zSet.size()).isEqualTo(3);
+		assertThat(zSet).hasSize(3);
 		Iterator<T> iterator = zSet.iterator();
 		assertThat(iterator.next()).isEqualTo(t1);
 		assertThat(iterator.next()).isEqualTo(t3);
@@ -589,8 +573,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
-	public void testUnionAndStore() {
+	@ParameterizedRedisTest
+	void testUnionAndStore() {
 
 		RedisZSet<T> unionSet1 = createZSetFor("test:zset:union1");
 		RedisZSet<T> unionSet2 = createZSetFor("test:zset:union2");
@@ -609,7 +593,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 
 		String resultName = "test:zset:union:result:1";
 		RedisZSet<T> union = zSet.unionAndStore(Arrays.asList(unionSet1, unionSet2), resultName);
-		assertThat(union.size()).isEqualTo(4);
+		assertThat(union).hasSize(4);
 		assertThat(union).contains(t1, t2, t3, t4);
 		assertThat(union.getKey()).isEqualTo(resultName);
 
@@ -619,7 +603,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(union.score(t4)).isEqualTo(Double.valueOf(5));
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	public void testIterator() {
 		T t1 = getT();
 		T t2 = getT();
@@ -640,7 +624,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(iterator.hasNext()).isFalse();
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	public void testToArray() {
 		T t1 = getT();
 		T t2 = getT();
@@ -656,7 +640,7 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(array).isEqualTo(new Object[] { t1, t2, t3, t4 });
 	}
 
-	@Test
+	@ParameterizedRedisTest
 	public void testToArrayWithGenerics() {
 		T t1 = getT();
 		T t2 = getT();
@@ -672,10 +656,8 @@ public abstract class AbstractRedisZSetTest<T> extends AbstractRedisCollectionTe
 		assertThat(array).isEqualTo(new Object[] { t1, t2, t3, t4 });
 	}
 
-	@IfProfileValue(name = "redisVersion", value = "2.8+")
-	@Test // DATAREDIS-314
-	@WithRedisDriver({ RedisDriver.JEDIS, RedisDriver.LETTUCE })
-	public void testScanWorksCorrectly() throws IOException {
+	@ParameterizedRedisTest // DATAREDIS-314
+	void testScanWorksCorrectly() throws IOException {
 
 		T t1 = getT();
 		T t2 = getT();
