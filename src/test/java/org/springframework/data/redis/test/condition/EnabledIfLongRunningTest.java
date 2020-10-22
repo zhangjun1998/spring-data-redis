@@ -33,7 +33,7 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
  *
  * @author Mark Paluch
  */
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented

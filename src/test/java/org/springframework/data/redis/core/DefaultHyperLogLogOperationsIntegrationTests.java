@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
@@ -50,7 +50,7 @@ public class DefaultHyperLogLogOperationsIntegrationTests<K, V> {
 		return AbstractOperationsTestParams.testParams();
 	}
 
-	@Before
+	@BeforeEach
 	void setUp() {
 		redisTemplate.execute((RedisCallback<Object>) connection -> {
 			connection.flushDb();

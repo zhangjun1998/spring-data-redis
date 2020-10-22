@@ -32,7 +32,6 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.Person;
-import org.springframework.data.redis.RedisTestProfileValueSource;
 import org.springframework.data.redis.SettingsUtils;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.StringRedisConnection;
@@ -45,6 +44,7 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.test.condition.EnabledIfLongRunningTest;
 import org.springframework.data.redis.test.extension.LettuceTestClientResources;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
@@ -332,15 +332,15 @@ public class RedisTemplateIntegrationTests<K, V> {
 				operations.opsForList().size(key1);
 				operations.exec();
 
-						try {
-							// Await EXEC completion as it's executed on a dedicated connection.
-							Thread.sleep(100);
-						} catch (InterruptedException e) {}
-						operations.opsForValue().set(key1, value1);
-						operations.opsForValue().get(key1);
-						return null;
-					}
-				});
+				try {
+					// Await EXEC completion as it's executed on a dedicated connection.
+					Thread.sleep(100);
+				} catch (InterruptedException e) {}
+				operations.opsForValue().set(key1, value1);
+				operations.opsForValue().get(key1);
+				return null;
+			}
+		});
 		// Should contain the List of deserialized exec results and the result of the last call to get()
 		assertThat(pipelinedResults).usingElementComparator(CollectionAwareComparator.INSTANCE)
 				.containsExactly(Arrays.asList(1L, value1, 0L), true, value1);
@@ -570,16 +570,16 @@ public class RedisTemplateIntegrationTests<K, V> {
 		K key = keyFactory.instance();
 		List<Object> result = redisTemplate.executePipelined(new SessionCallback<Object>() {
 
-					@Override
-					public Object execute(RedisOperations operations) throws DataAccessException {
+			@Override
+			public Object execute(RedisOperations operations) throws DataAccessException {
 
-						operations.boundValueOps(key).set(valueFactory.instance());
-						operations.expire(key, 1, TimeUnit.DAYS);
-						operations.getExpire(key, TimeUnit.HOURS);
+				operations.boundValueOps(key).set(valueFactory.instance());
+				operations.expire(key, 1, TimeUnit.DAYS);
+				operations.getExpire(key, TimeUnit.HOURS);
 
-						return null;
-					}
-				});
+				return null;
+			}
+		});
 
 		assertThat(result).hasSize(3);
 		assertThat(((Long) result.get(2))).isGreaterThanOrEqualTo(23L);
@@ -605,9 +605,9 @@ public class RedisTemplateIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest
+	@EnabledIfLongRunningTest
 	void testExpireAtMillisNotSupported() {
 
-		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
 		assumeThat(redisTemplate.getConnectionFactory() instanceof JedisConnectionFactory).isTrue();
 
 		K key1 = keyFactory.instance();

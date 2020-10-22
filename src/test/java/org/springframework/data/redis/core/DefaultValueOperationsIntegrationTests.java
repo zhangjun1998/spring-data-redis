@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.data.redis.ObjectFactory;
-import org.springframework.data.redis.RedisTestProfileValueSource;
+import org.springframework.data.redis.test.condition.EnabledIfLongRunningTest;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
@@ -267,9 +267,8 @@ public class DefaultValueOperationsIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-271
+	@EnabledIfLongRunningTest
 	void testSetWithExpirationWithTimeUnitMilliseconds() {
-
-		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
 
 		K key = keyFactory.instance();
 		V value = valueFactory.instance();

@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.data.redis.ObjectFactory;
-import org.springframework.data.redis.RedisTestProfileValueSource;
 import org.springframework.data.redis.StringObjectFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.test.condition.EnabledIfLongRunningTest;
 import org.springframework.data.redis.test.condition.EnabledOnCommand;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
@@ -119,10 +119,10 @@ public class DefaultListOperationsIntegrationIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-611
+	@EnabledIfLongRunningTest
 	void testLeftPopDuration() {
 
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
 		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();
@@ -135,10 +135,10 @@ public class DefaultListOperationsIntegrationIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-611
+	@EnabledIfLongRunningTest
 	void testRightPopDuration() {
 
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
 		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();
@@ -151,9 +151,9 @@ public class DefaultListOperationsIntegrationIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest
+	@EnabledIfLongRunningTest
 	void testRightPopAndLeftPushTimeout() {
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
 		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();
@@ -166,9 +166,9 @@ public class DefaultListOperationsIntegrationIntegrationTests<K, V> {
 	}
 
 	@ParameterizedRedisTest // DATAREDIS-611
+	@EnabledIfLongRunningTest
 	void testRightPopAndLeftPushDuration() {
 		// 1 ms timeout gets upgraded to 1 sec timeout at the moment
-		assumeThat(RedisTestProfileValueSource.matches("runLongTests", "true")).isTrue();
 		assumeThat(valueFactory instanceof StringObjectFactory).isTrue();
 
 		K key = keyFactory.instance();

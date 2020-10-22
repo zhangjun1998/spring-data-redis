@@ -31,13 +31,11 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.data.redis.RedisTestProfileValueSource;
 import org.springframework.data.redis.SettingsUtils;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -61,6 +59,7 @@ import org.springframework.data.redis.test.extension.parametrized.ParameterizedR
  * @author Mark Paluch
  */
 @MethodSource("testParams")
+@EnabledIfLongRunningTest
 public class PubSubResubscribeTests {
 
 	private static final String CHANNEL = "pubsub::test";
@@ -77,11 +76,6 @@ public class PubSubResubscribeTests {
 
 	public PubSubResubscribeTests(RedisConnectionFactory connectionFactory) {
 		this.factory = connectionFactory;
-	}
-
-	@BeforeClass
-	static void shouldRun() {
-		assumeTrue(RedisTestProfileValueSource.matches("runLongTests", "true"));
 	}
 
 	public static Collection<Object[]> testParams() {
