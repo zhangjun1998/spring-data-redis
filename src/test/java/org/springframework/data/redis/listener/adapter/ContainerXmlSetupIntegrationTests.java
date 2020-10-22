@@ -33,7 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @EnabledOnRedisAvailable
 @ContextConfiguration("/org/springframework/data/redis/listener/container.xml")
-class ContainerXmlSetupTest {
+class ContainerXmlSetupIntegrationTests {
 
 	@Autowired RedisMessageListenerContainer container;
 
