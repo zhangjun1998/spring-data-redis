@@ -722,7 +722,10 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test
 	public void exceptionExecuteNative() throws Exception {
-		assertThatExceptionOfType(DataAccessException.class).isThrownBy(() -> connection.execute("set", "foo"));
+		assertThatExceptionOfType(DataAccessException.class).isThrownBy(() -> {
+			connection.execute("set", "foo");
+			getResults();
+		});
 	}
 
 	@Test

@@ -56,37 +56,55 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 
 	@Test
 	public void testExecWithoutMulti() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testExecWithoutMulti);
+		connection.exec();
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
 	@Test
 	public void testErrorInTx() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testErrorInTx);
+
+		connection.multi();
+		connection.set("foo", "bar");
+		// Try to do a list op on a value
+		connection.lPop("foo");
+		connection.exec();
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
 	@Test
 	public void exceptionExecuteNative() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::exceptionExecuteNative);
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(() -> {
+			connection.execute("set", "foo");
+			getResults();
+		});
 	}
 
 	@Test
 	public void testEvalShaNotFound() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testEvalShaNotFound);
+		connection.evalSha("somefakesha", ReturnType.VALUE, 2, "key1", "key2");
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
 	@Test
 	public void testEvalReturnSingleError() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testEvalReturnSingleError);
+		connection.eval("return redis.call('expire','foo')", ReturnType.BOOLEAN, 0);
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
 	@Test
 	public void testRestoreBadData() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testRestoreBadData);
+		connection.restore("testing".getBytes(), 0, "foo".getBytes());
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
 	@Test
 	public void testRestoreExistingKey() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testRestoreExistingKey);
+		actual.add(connection.set("testing", "12"));
+		actual.add(connection.dump("testing".getBytes()));
+		List<Object> results = getResults();
+		initConnection();
+		connection.restore("testing".getBytes(), 0, (byte[]) results.get(1));
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
 	@Test
@@ -95,7 +113,8 @@ abstract public class AbstractConnectionPipelineIntegrationTests extends Abstrac
 
 	@Test
 	public void testEvalShaArrayError() {
-		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(super::testEvalShaArrayError);
+		connection.evalSha("notasha", ReturnType.MULTI, 1, "key1", "arg1");
+		assertThatExceptionOfType(RedisPipelineException.class).isThrownBy(this::getResults);
 	}
 
 	@Test
