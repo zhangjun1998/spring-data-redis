@@ -38,6 +38,8 @@ import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.connection.ReactiveStreamCommands.AddStreamRecord;
@@ -50,6 +52,7 @@ import org.springframework.data.redis.connection.stream.MapRecord;
  * @author Mark Paluch
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class LettuceReactiveRedisConnectionUnitTests {
 
 	@Mock(answer = Answers.RETURNS_MOCKS) StatefulRedisConnection<ByteBuffer, ByteBuffer> sharedConnection;
