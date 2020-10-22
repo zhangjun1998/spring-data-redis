@@ -31,13 +31,13 @@ import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.connection.ReactiveStreamCommands.AddStreamRecord;
@@ -49,23 +49,23 @@ import org.springframework.data.redis.connection.stream.MapRecord;
  *
  * @author Mark Paluch
  */
-@RunWith(MockitoJUnitRunner.class)
-public class LettuceReactiveRedisConnectionUnitTests {
+@ExtendWith(MockitoExtension.class)
+class LettuceReactiveRedisConnectionUnitTests {
 
 	@Mock(answer = Answers.RETURNS_MOCKS) StatefulRedisConnection<ByteBuffer, ByteBuffer> sharedConnection;
 
 	@Mock RedisReactiveCommands<ByteBuffer, ByteBuffer> reactiveCommands;
 	@Mock LettuceConnectionProvider connectionProvider;
 
-	@Before
-	public void before() {
+	@BeforeEach
+	void before() {
 		when(connectionProvider.getConnectionAsync(any())).thenReturn(CompletableFuture.completedFuture(sharedConnection));
 		when(connectionProvider.releaseAsync(any())).thenReturn(CompletableFuture.completedFuture(null));
 		when(sharedConnection.reactive()).thenReturn(reactiveCommands);
 	}
 
 	@Test // DATAREDIS-720
-	public void shouldLazilyInitializeConnection() {
+	void shouldLazilyInitializeConnection() {
 
 		new LettuceReactiveRedisConnection(connectionProvider);
 
@@ -73,7 +73,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldExecuteUsingConnectionProvider() {
+	void shouldExecuteUsingConnectionProvider() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 
@@ -83,7 +83,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldExecuteDedicatedUsingConnectionProvider() {
+	void shouldExecuteDedicatedUsingConnectionProvider() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 
@@ -93,7 +93,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720
-	public void shouldExecuteOnSharedConnection() {
+	void shouldExecuteOnSharedConnection() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(sharedConnection,
 				connectionProvider);
@@ -104,7 +104,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldExecuteDedicatedWithSharedConnection() {
+	void shouldExecuteDedicatedWithSharedConnection() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(sharedConnection,
 				connectionProvider);
@@ -115,7 +115,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldOperateOnDedicatedConnection() {
+	void shouldOperateOnDedicatedConnection() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 
@@ -125,7 +125,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldCloseOnlyDedicatedConnection() {
+	void shouldCloseOnlyDedicatedConnection() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(sharedConnection,
 				connectionProvider);
@@ -140,7 +140,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldCloseConnectionOnlyOnce() {
+	void shouldCloseConnectionOnlyOnce() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 
@@ -154,7 +154,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 
 	@Test // DATAREDIS-720, DATAREDIS-721
 	@SuppressWarnings("unchecked")
-	public void multipleCallsInProgressShouldConnectOnlyOnce() throws Exception {
+	void multipleCallsInProgressShouldConnectOnlyOnce() throws Exception {
 
 		CompletableFuture<StatefulConnection<?, ?>> connectionFuture = new CompletableFuture<>();
 		reset(connectionProvider);
@@ -182,7 +182,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldPropagateConnectionFailures() {
+	void shouldPropagateConnectionFailures() {
 
 		reset(connectionProvider);
 		when(connectionProvider.getConnectionAsync(any()))
@@ -194,7 +194,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-720, DATAREDIS-721
-	public void shouldRejectCommandsAfterClose() {
+	void shouldRejectCommandsAfterClose() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 		connection.close();
@@ -203,7 +203,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-659, DATAREDIS-708
-	public void bgReWriteAofShouldRespondCorrectly() {
+	void bgReWriteAofShouldRespondCorrectly() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 
@@ -213,7 +213,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-659, DATAREDIS-667, DATAREDIS-708
-	public void bgSaveShouldRespondCorrectly() {
+	void bgSaveShouldRespondCorrectly() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 
@@ -223,7 +223,7 @@ public class LettuceReactiveRedisConnectionUnitTests {
 	}
 
 	@Test // DATAREDIS-1122
-	public void xaddShouldHonorMaxlen() {
+	void xaddShouldHonorMaxlen() {
 
 		LettuceReactiveRedisConnection connection = new LettuceReactiveRedisConnection(connectionProvider);
 

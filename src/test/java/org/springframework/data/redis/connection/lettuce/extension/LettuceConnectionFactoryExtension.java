@@ -28,13 +28,11 @@ import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.SettingsUtils;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
-import org.springframework.data.redis.connection.RedisConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettucePool;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.test.extension.LettuceTestClientResources;
 import org.springframework.data.redis.test.extension.RedisCluster;
@@ -208,52 +206,26 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 	static class ManagedLettuceConnectionFactory extends LettuceConnectionFactory
 			implements ConnectionFactoryTracker.Managed {
 
-		public ManagedLettuceConnectionFactory() {
-			super();
-		}
 
-		public ManagedLettuceConnectionFactory(RedisStandaloneConfiguration configuration) {
-			super(configuration);
-		}
-
-		public ManagedLettuceConnectionFactory(String host, int port) {
-			super(host, port);
-		}
-
-		public ManagedLettuceConnectionFactory(RedisConfiguration redisConfiguration) {
-			super(redisConfiguration);
-		}
-
-		public ManagedLettuceConnectionFactory(RedisSentinelConfiguration sentinelConfiguration) {
-			super(sentinelConfiguration);
-		}
-
-		public ManagedLettuceConnectionFactory(RedisClusterConfiguration clusterConfiguration) {
-			super(clusterConfiguration);
-		}
-
-		public ManagedLettuceConnectionFactory(LettucePool pool) {
-			super(pool);
-		}
-
-		public ManagedLettuceConnectionFactory(RedisStandaloneConfiguration standaloneConfig,
+		ManagedLettuceConnectionFactory(RedisStandaloneConfiguration standaloneConfig,
 				LettuceClientConfiguration clientConfig) {
 			super(standaloneConfig, clientConfig);
 		}
 
-		public ManagedLettuceConnectionFactory(RedisConfiguration redisConfiguration,
-				LettuceClientConfiguration clientConfig) {
-			super(redisConfiguration, clientConfig);
-		}
-
-		public ManagedLettuceConnectionFactory(RedisSentinelConfiguration sentinelConfiguration,
+		ManagedLettuceConnectionFactory(RedisSentinelConfiguration sentinelConfiguration,
 				LettuceClientConfiguration clientConfig) {
 			super(sentinelConfiguration, clientConfig);
 		}
 
-		public ManagedLettuceConnectionFactory(RedisClusterConfiguration clusterConfiguration,
+		ManagedLettuceConnectionFactory(RedisClusterConfiguration clusterConfiguration,
 				LettuceClientConfiguration clientConfig) {
 			super(clusterConfiguration, clientConfig);
+		}
+
+		@Override
+		public void destroy() {
+			new Exception().printStackTrace();
+			super.destroy();
 		}
 
 		@Override

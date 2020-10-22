@@ -17,21 +17,24 @@ package org.springframework.data.redis.support.collections;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 /**
  * @author Costin Leau
  */
-public class SupportXmlTests {
+class SupportXmlIntegrationTests {
 
 	@Test
-	public void testContainerSetup() throws Exception {
+	void testContainerSetup() throws Exception {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
 				"/org/springframework/data/redis/support/collections/container.xml");
 
 		RedisList list = ctx.getBean("non-existing", RedisList.class);
 		RedisProperties props = ctx.getBean("props", RedisProperties.class);
 		Map map = ctx.getBean("map", Map.class);
+
+		ctx.close();
 	}
 }

@@ -15,9 +15,6 @@
  */
 package org.springframework.data.redis.connection.jedis.extension;
 
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.JedisShardInfo;
-
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
@@ -146,51 +143,27 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 	static class ManagedJedisConnectionFactory extends JedisConnectionFactory
 			implements ConnectionFactoryTracker.Managed {
 
-		public ManagedJedisConnectionFactory() {
-			super();
-		}
 
-		public ManagedJedisConnectionFactory(JedisShardInfo shardInfo) {
-			super(shardInfo);
-		}
-
-		public ManagedJedisConnectionFactory(JedisPoolConfig poolConfig) {
-			super(poolConfig);
-		}
-
-		public ManagedJedisConnectionFactory(RedisSentinelConfiguration sentinelConfig) {
-			super(sentinelConfig);
-		}
-
-		public ManagedJedisConnectionFactory(RedisSentinelConfiguration sentinelConfig, JedisPoolConfig poolConfig) {
-			super(sentinelConfig, poolConfig);
-		}
-
-		public ManagedJedisConnectionFactory(RedisClusterConfiguration clusterConfig) {
-			super(clusterConfig);
-		}
-
-		public ManagedJedisConnectionFactory(RedisClusterConfiguration clusterConfig, JedisPoolConfig poolConfig) {
-			super(clusterConfig, poolConfig);
-		}
-
-		public ManagedJedisConnectionFactory(RedisStandaloneConfiguration standaloneConfig) {
-			super(standaloneConfig);
-		}
-
-		public ManagedJedisConnectionFactory(RedisStandaloneConfiguration standaloneConfig,
+		ManagedJedisConnectionFactory(RedisStandaloneConfiguration standaloneConfig,
 				JedisClientConfiguration clientConfig) {
 			super(standaloneConfig, clientConfig);
 		}
 
-		public ManagedJedisConnectionFactory(RedisSentinelConfiguration sentinelConfig,
+		ManagedJedisConnectionFactory(RedisSentinelConfiguration sentinelConfig,
 				JedisClientConfiguration clientConfig) {
 			super(sentinelConfig, clientConfig);
 		}
 
-		public ManagedJedisConnectionFactory(RedisClusterConfiguration clusterConfig,
+		ManagedJedisConnectionFactory(RedisClusterConfiguration clusterConfig,
 				JedisClientConfiguration clientConfig) {
 			super(clusterConfig, clientConfig);
+		}
+
+		@Override
+		public void destroy() {
+			new Exception().printStackTrace();
+
+			super.destroy();
 		}
 
 		@Override

@@ -15,8 +15,8 @@
  */
 package org.springframework.data.redis.connection.lettuce;
 
-import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.test.context.ContextConfiguration;
@@ -34,6 +34,7 @@ public class LettuceConnectionPipelineFlushOnEndIntegrationTests extends Lettuce
 
 	@Test
 	@Disabled("WATCH command is flushed during EXEC therefore we're not run commands between WATCH and EXEC")
+	@Override
 	public void testWatch() throws Exception {
 
 	}
