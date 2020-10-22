@@ -20,11 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.Address;
@@ -35,6 +31,8 @@ import org.springframework.data.redis.connection.lettuce.extension.LettuceConnec
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.hash.Jackson2HashMapper;
 import org.springframework.data.redis.test.extension.RedisStanalone;
+import org.springframework.data.redis.test.extension.parametrized.MethodSource;
+import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
 /**
  * Integration tests for {@link Jackson2HashMapper}.
@@ -42,14 +40,14 @@ import org.springframework.data.redis.test.extension.RedisStanalone;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-@RunWith(Parameterized.class)
-public class Jackson2HashMapperTests {
+@MethodSource("params")
+public class Jackson2HashMapperIntegrationTests {
 
 	RedisTemplate<String, Object> template;
 	RedisConnectionFactory factory;
 	Jackson2HashMapper mapper;
 
-	public Jackson2HashMapperTests(RedisConnectionFactory factory) throws Exception {
+	public Jackson2HashMapperIntegrationTests(RedisConnectionFactory factory) throws Exception {
 
 		this.factory = factory;
 		if (factory instanceof InitializingBean) {
@@ -57,14 +55,13 @@ public class Jackson2HashMapperTests {
 		}
 	}
 
-	@Parameters
 	public static Collection<RedisConnectionFactory> params() {
 
 		return Arrays.asList(JedisConnectionFactoryExtension.getConnectionFactory(RedisStanalone.class),
 				LettuceConnectionFactoryExtension.getConnectionFactory(RedisStanalone.class));
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 
 		this.template = new RedisTemplate<>();
@@ -74,7 +71,7 @@ public class Jackson2HashMapperTests {
 		this.mapper = new Jackson2HashMapper(true);
 	}
 
-	@Test // DATAREDIS-423
+	@ParameterizedRedisTest // DATAREDIS-423
 	public void shouldWriteReadHashCorrectly() {
 
 		Person jon = new Person("jon", "snow", 19);

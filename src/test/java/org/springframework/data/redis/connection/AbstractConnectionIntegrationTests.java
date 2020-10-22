@@ -16,7 +16,6 @@
 package org.springframework.data.redis.connection;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
 import static org.springframework.data.redis.SpinBarrier.*;
 import static org.springframework.data.redis.connection.BitFieldSubCommands.*;
 import static org.springframework.data.redis.connection.BitFieldSubCommands.BitFieldIncrBy.Overflow.*;
@@ -29,13 +28,10 @@ import static org.springframework.data.redis.core.ScanOptions.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.assertj.core.data.Offset;
-import org.awaitility.Awaitility;
 import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,9 +46,7 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResults;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
-import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.RedisSystemException;
-import org.springframework.data.redis.RedisVersionUtils;
 import org.springframework.data.redis.TestCondition;
 import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
 import org.springframework.data.redis.connection.RedisListCommands.Position;
@@ -124,8 +118,6 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@BeforeEach
 	public void setUp() {
-
-		ConnectionFactoryTracker.add(connectionFactory);
 
 		byteConnection = connectionFactory.getConnection();
 		connection = new DefaultStringRedisConnection(byteConnection);
@@ -255,14 +247,18 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test
 	public void testEvalShaArrayError() {
-		connection.evalSha("notasha", ReturnType.MULTI, 1, "key1", "arg1");
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			connection.evalSha("notasha", ReturnType.MULTI, 1, "key1", "arg1");
+			getResults();
+		});
 	}
 
 	@Test
 	public void testEvalShaNotFound() {
-		connection.evalSha("somefakesha", ReturnType.VALUE, 2, "key1", "key2");
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			connection.evalSha("somefakesha", ReturnType.VALUE, 2, "key1", "key2");
+			getResults();
+		});
 	}
 
 	@Test
@@ -286,8 +282,10 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test
 	public void testEvalReturnSingleError() {
-		connection.eval("return redis.call('expire','foo')", ReturnType.BOOLEAN, 0);
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			connection.eval("return redis.call('expire','foo')", ReturnType.BOOLEAN, 0);
+			getResults();
+		});
 	}
 
 	@Test
@@ -319,9 +317,11 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test
 	public void testEvalArrayScriptError() {
-		// Syntax error
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			// Syntax error
 		connection.eval("return {1,2", ReturnType.MULTI, 1, "foo", "bar");
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+			getResults();
+		});
 	}
 
 	@SuppressWarnings("unchecked")
@@ -353,33 +353,6 @@ public abstract class AbstractConnectionIntegrationTests {
 		initConnection();
 		actual.add(connection.scriptExists(sha1, "98777234"));
 		verifyResults(Arrays.asList(new Object[] { Arrays.asList(new Object[] { true, false }) }));
-	}
-
-	@Test
-	@IfProfileValue(name = "runLongTests", value = "true")
-	public void testScriptKill() throws Exception {
-		getResults();
-		assumeTrue(RedisVersionUtils.atLeast("2.6", byteConnection));
-		initConnection();
-		final AtomicBoolean scriptDead = new AtomicBoolean(false);
-		final CountDownLatch sync = new CountDownLatch(1);
-		Thread th = new Thread(() -> {
-			DefaultStringRedisConnection conn2 = new DefaultStringRedisConnection(connectionFactory.getConnection());
-			try {
-				sync.countDown();
-				conn2.eval("local time=1 while time < 10000000000 do time=time+1 end", ReturnType.BOOLEAN, 0);
-			} catch (DataAccessException e) {
-				scriptDead.set(true);
-			}
-			conn2.close();
-		});
-		th.start();
-		sync.await(2, TimeUnit.SECONDS);
-		Thread.sleep(200);
-		connection.scriptKill();
-		getResults();
-
-		Awaitility.await().untilTrue(scriptDead);
 	}
 
 	@Test
@@ -768,18 +741,21 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test
 	public void testExecWithoutMulti() {
-		connection.exec();
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			connection.exec();
+		});
 	}
 
 	@Test
 	public void testErrorInTx() {
-		connection.multi();
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			connection.multi();
 		connection.set("foo", "bar");
 		// Try to do a list op on a value
 		connection.lPop("foo");
 		connection.exec();
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+			getResults();
+		});
 	}
 
 	@Test
@@ -1058,9 +1034,11 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@Test
 	public void testRestoreBadData() {
-		// Use something other than dump-specific serialization
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			// Use something other than dump-specific serialization
 		connection.restore("testing".getBytes(), 0, "foo".getBytes());
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+			getResults();
+		});
 	}
 
 	@Test
@@ -1070,8 +1048,10 @@ public abstract class AbstractConnectionIntegrationTests {
 		actual.add(connection.dump("testing".getBytes()));
 		List<Object> results = getResults();
 		initConnection();
-		connection.restore("testing".getBytes(), 0, (byte[]) results.get(1));
-		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> getResults());
+		assertThatExceptionOfType(RedisSystemException.class).isThrownBy(() -> {
+			connection.restore("testing".getBytes(), 0, (byte[]) results.get(1));
+			getResults();
+		});
 	}
 
 	@Test // DATAREDIS-696

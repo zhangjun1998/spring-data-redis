@@ -28,9 +28,6 @@ import org.springframework.data.redis.test.condition.EnabledOnRedisDriverConditi
  * {@code @WithRedisDriver} is used to signal that the annotated test class or test method is only <em>enabled</em> when
  * one of the {@link #value() specified Redis Clients} is used.
  * <p>
- * When applied at the class level, all test methods within that class will be enabled on the same specified Redis
- * Clients.
- * <p>
  * This annotation must be used in combination with {@link DriverQualifier @DriverQualifier} so the extension can
  * identify the driver from a {@link org.springframework.data.redis.connection.RedisConnectionFactory}.
  * <p>
@@ -42,7 +39,7 @@ import org.springframework.data.redis.test.condition.EnabledOnRedisDriverConditi
  * @author Mark Paluch
  * @see org.springframework.data.redis.connection.RedisConnectionFactory
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(EnabledOnRedisDriverCondition.class)
 public @interface WithRedisDriver {

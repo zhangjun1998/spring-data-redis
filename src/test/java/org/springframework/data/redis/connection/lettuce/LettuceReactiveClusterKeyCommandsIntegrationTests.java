@@ -17,7 +17,7 @@ package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.redis.connection.RedisClusterNode.*;
-import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestsBase.*;
+import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestSupport.*;
 
 import reactor.core.publisher.Mono;
 
@@ -31,7 +31,7 @@ import org.springframework.data.redis.connection.RedisClusterNode;
 /**
  * @author Christoph Strobl
  */
-class LettuceReactiveClusterKeyCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterKeyCommandsIntegrationTests extends LettuceReactiveClusterTestSupport {
 
 	private static final RedisClusterNode NODE_1 = newRedisClusterNode().listeningAt("127.0.0.1", 7379).build();
 

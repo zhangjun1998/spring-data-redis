@@ -56,12 +56,14 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace
 			.create(JedisConnectionFactoryExtension.class);
 
+	private static final JedisClientConfiguration CLIENT_CONFIGURATION = JedisClientConfiguration.builder()
+			.clientName("jedis-client").usePooling().build();
+
 	private static final Lazy<JedisConnectionFactory> STANDALONE = Lazy.of(() -> {
 
-		JedisClientConfiguration configuration = JedisClientConfiguration.builder().usePooling().build();
-
 		JedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.standaloneConfiguration(),
-				configuration);
+				CLIENT_CONFIGURATION);
+
 		factory.afterPropertiesSet();
 		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
 
@@ -70,10 +72,9 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 
 	private static final Lazy<JedisConnectionFactory> SENTINEL = Lazy.of(() -> {
 
-		JedisClientConfiguration configuration = JedisClientConfiguration.builder().usePooling().build();
-
 		JedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.sentinelConfiguration(),
-				configuration);
+				CLIENT_CONFIGURATION);
+
 		factory.afterPropertiesSet();
 		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
 
@@ -82,10 +83,9 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 
 	private static final Lazy<JedisConnectionFactory> CLUSTER = Lazy.of(() -> {
 
-		JedisClientConfiguration configuration = JedisClientConfiguration.builder().usePooling().build();
-
 		JedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.clusterConfiguration(),
-				configuration);
+				CLIENT_CONFIGURATION);
+
 		factory.afterPropertiesSet();
 		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
 

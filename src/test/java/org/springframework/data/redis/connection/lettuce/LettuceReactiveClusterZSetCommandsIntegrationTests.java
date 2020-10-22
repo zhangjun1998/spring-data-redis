@@ -16,7 +16,7 @@
 package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestsBase.*;
+import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestSupport.*;
 
 import java.util.Arrays;
 
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Christoph Strobl
  */
-class LettuceReactiveClusterZSetCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterZSetCommandsIntegrationTests extends LettuceReactiveClusterTestSupport {
 
 	@Test // DATAREDIS-525
 	void zUnionStoreShouldWorkWhenAllKeysMapToSameSlot() {

@@ -16,7 +16,7 @@
 package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestsBase.*;
+import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestSupport.*;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import org.springframework.data.redis.connection.RedisStringCommands;
  * @author Christoph Strobl
  * @since 2.0
  */
-class LettuceReactiveClusterStringCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterStringCommandsIntegrationTests extends LettuceReactiveClusterTestSupport {
 
 	@Test // DATAREDIS-525
 	void mSetNXShouldAddMultipleKeyValueParisWhenMappedToSameSlot() {

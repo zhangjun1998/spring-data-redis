@@ -17,10 +17,11 @@ package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 import java.nio.ByteBuffer;
+
+import org.junit.jupiter.api.Test;
 
 import org.springframework.data.redis.connection.ReactiveClusterCommands;
 import org.springframework.data.redis.connection.RedisClusterNode;
@@ -34,7 +35,7 @@ import org.springframework.data.redis.connection.RedisClusterNode;
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-class LettuceReactiveClusterCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterCommandsIntegrationTests extends LettuceReactiveClusterTestSupport {
 
 	@Test // DATAREDIS-1150
 	void pingShouldReturnPong() {

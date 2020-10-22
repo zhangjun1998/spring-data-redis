@@ -29,7 +29,6 @@ import java.util.Map.Entry;
 
 import org.junit.jupiter.api.BeforeEach;
 
-import org.springframework.data.redis.ConnectionFactoryTracker;
 import org.springframework.data.redis.ObjectFactory;
 import org.springframework.data.redis.RawObjectFactory;
 import org.springframework.data.redis.SettingsUtils;
@@ -68,8 +67,6 @@ public class DefaultReactiveHashOperationsIntegrationTests<K, HK, HV> {
 		this.keyFactory = keyFactory;
 		this.hashKeyFactory = hashKeyFactory;
 		this.hashValueFactory = hashValueFactory;
-
-		ConnectionFactoryTracker.add(redisTemplate.getConnectionFactory());
 	}
 
 	public static Collection<Object[]> testParams() {

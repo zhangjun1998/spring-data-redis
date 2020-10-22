@@ -32,7 +32,6 @@ import org.junit.platform.commons.util.ReflectionUtils;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.test.util.RedisDriver;
 import org.springframework.data.redis.test.util.WithRedisDriver;
-import org.springframework.util.ClassUtils;
 
 /**
  * {@link ExecutionCondition} for {@link EnabledOnRedisDriverCondition @WithRedisDriver}.
@@ -77,7 +76,7 @@ public class EnabledOnRedisDriverCondition implements ExecutionCondition {
 
 				if (!foundMatch) {
 					return disabled(String.format("Driver %s not supported. Supported driver(s): %s",
-							ClassUtils.getShortName(value.getClass()), Arrays.toString(annotation.value())));
+							value, Arrays.toString(annotation.value())));
 				}
 			}
 

@@ -20,8 +20,6 @@ import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +33,7 @@ import org.springframework.data.redis.test.extension.LettuceExtension;
  */
 @EnabledOnRedisClusterAvailable
 @ExtendWith(LettuceExtension.class)
-public abstract class LettuceReactiveClusterCommandsTestsBase {
+public abstract class LettuceReactiveClusterTestSupport {
 
 	RedisClusterCommands<String, String> nativeCommands;
 	LettuceReactiveRedisClusterConnection connection;

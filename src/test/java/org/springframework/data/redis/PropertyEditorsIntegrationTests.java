@@ -27,7 +27,7 @@ import org.springframework.data.redis.core.RedisOperations;
 /**
  * @author Costin Leau
  */
-class PropertyEditorsTest {
+class PropertyEditorsIntegrationTests {
 
 	private GenericXmlApplicationContext ctx;
 

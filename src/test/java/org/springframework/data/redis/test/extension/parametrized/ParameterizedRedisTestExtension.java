@@ -19,11 +19,11 @@ import static org.junit.platform.commons.util.AnnotationUtils.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
@@ -76,8 +76,6 @@ class ParameterizedRedisTestExtension implements TestTemplateInvocationContextPr
 	public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
 			ExtensionContext extensionContext) {
 
-		Optional<TestInstance.Lifecycle> testInstanceLifecycle = extensionContext.getTestInstanceLifecycle();
-
 		Method templateMethod = extensionContext.getRequiredTestMethod();
 		String displayName = extensionContext.getDisplayName();
 		ParameterizedTestContext methodContext = getStore(extensionContext)//
@@ -91,10 +89,17 @@ class ParameterizedRedisTestExtension implements TestTemplateInvocationContextPr
 				argumentMaxLength);
 		AtomicLong invocationCount = new AtomicLong(0);
 
+		List<Class<?>> hierarchy = new ArrayList<>();
+		Class<?> type = extensionContext.getRequiredTestClass();
+		while (type != Object.class) {
+			hierarchy.add(type);
+			type = type.getSuperclass();
+		}
+
 		// @formatter:off
-		return findRepeatableAnnotations(templateMethod.getDeclaringClass(), ArgumentsSource.class).stream()
+		return hierarchy.stream().flatMap(it -> findRepeatableAnnotations(it, ArgumentsSource.class).stream()
 				.map(ArgumentsSource::value).map(this::instantiateArgumentsProvider)
-				.map(provider -> AnnotationConsumerInitializer.initialize(templateMethod.getDeclaringClass(), provider))
+				.map(provider -> AnnotationConsumerInitializer.initialize(it, provider)))
 				.flatMap(provider -> arguments(provider, extensionContext)).map(Arguments::get)
 				.map(arguments -> consumedArguments(arguments, methodContext))
 				.map(arguments -> createInvocationContext(formatter, constructorContext, methodContext, arguments))

@@ -17,7 +17,7 @@ package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.redis.connection.ClusterTestVariables.*;
-import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestsBase.*;
+import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestSupport.*;
 
 import reactor.test.StepVerifier;
 
@@ -28,7 +28,7 @@ import org.springframework.data.redis.connection.RedisClusterNode;
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-class LettuceReactiveClusterServerCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterServerCommandsIntegrationTests extends LettuceReactiveClusterTestSupport {
 
 	private static final RedisClusterNode NODE1 = new RedisClusterNode(CLUSTER_HOST, MASTER_NODE_1_PORT);
 	private static final RedisClusterNode NODE2 = new RedisClusterNode(CLUSTER_HOST, MASTER_NODE_2_PORT);

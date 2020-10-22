@@ -16,7 +16,7 @@
 package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestsBase.*;
+import static org.springframework.data.redis.connection.lettuce.LettuceReactiveCommandsTestSupport.*;
 
 import java.nio.ByteBuffer;
 import java.time.Duration;
@@ -29,7 +29,7 @@ import org.springframework.data.redis.connection.ReactiveListCommands;
 /**
  * @author Christoph Strobl
  */
-class LettuceReactiveClusterListCommandsTests extends LettuceReactiveClusterCommandsTestsBase {
+class LettuceReactiveClusterListCommandsIntegrationTests extends LettuceReactiveClusterTestSupport {
 
 	@Test // DATAREDIS-525
 	void bRPopLPushShouldWorkCorrectlyWhenAllKeysMapToSameSlot() {
