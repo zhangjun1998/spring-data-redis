@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -78,7 +77,6 @@ public class DefaultStringRedisConnectionTests {
 
 	protected List<Object> actual = new ArrayList<>();
 
-	// @Mock protected RedisConnection nativeConnection;
 	RedisConnection nativeConnection;
 
 	protected DefaultStringRedisConnection connection;

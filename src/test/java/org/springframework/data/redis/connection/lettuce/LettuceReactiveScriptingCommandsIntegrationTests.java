@@ -17,16 +17,10 @@ package org.springframework.data.redis.connection.lettuce;
 
 import static org.assertj.core.api.Assumptions.*;
 
-import io.lettuce.core.ScriptOutputType;
 import reactor.test.StepVerifier;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.awaitility.Awaitility;
 
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.ReturnType;
@@ -153,30 +147,6 @@ public class LettuceReactiveScriptingCommandsIntegrationTests extends LettuceRea
 		connection.scriptingCommands().eval(script, ReturnType.MULTI, 0).as(StepVerifier::create) //
 				.expectError(RedisSystemException.class) //
 				.verify();
-	}
-
-	@ParameterizedRedisTest // DATAREDIS-683
-	void scriptKillShouldKillScripts() throws Exception {
-
-		assumeThat(connectionProvider).isInstanceOf(StandaloneConnectionProvider.class);
-
-		AtomicBoolean scriptDead = new AtomicBoolean(false);
-		CountDownLatch sync = new CountDownLatch(1);
-		Thread th = new Thread(() -> {
-			try {
-				sync.countDown();
-				nativeCommands.eval("local time=1 while time < 10000000000 do time=time+1 end", ScriptOutputType.BOOLEAN);
-			} catch (Exception e) {
-				scriptDead.set(true);
-			}
-		});
-		th.start();
-		sync.await(2, TimeUnit.SECONDS);
-		Thread.sleep(200);
-
-		connection.scriptingCommands().scriptKill().as(StepVerifier::create).expectNext("OK").verifyComplete();
-
-		Awaitility.await().untilTrue(scriptDead);
 	}
 
 	private static ByteBuffer wrap(String content) {

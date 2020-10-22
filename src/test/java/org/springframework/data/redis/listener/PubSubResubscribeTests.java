@@ -47,6 +47,7 @@ import org.springframework.data.redis.connection.lettuce.extension.LettuceConnec
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.test.condition.EnabledIfLongRunningTest;
 import org.springframework.data.redis.test.condition.RedisDetector;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.extension.RedisStanalone;
@@ -137,6 +138,7 @@ public class PubSubResubscribeTests {
 	}
 
 	@ParameterizedRedisTest
+	@EnabledIfLongRunningTest
 	void testContainerPatternResubscribe() throws Exception {
 
 		String payload1 = "do";

@@ -1027,7 +1027,7 @@ public class JedisClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void lPushNXShoultNotAddValuesWhenKeyDoesNotExist() {
+	public void lPushNXShouldNotAddValuesWhenKeyDoesNotExist() {
 
 		clusterConnection.lPushX(KEY_1_BYTES, VALUE_1_BYTES);
 
@@ -1035,7 +1035,7 @@ public class JedisClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void lPushShoultAddValuesCorrectly() {
+	public void lPushShouldAddValuesCorrectly() {
 
 		clusterConnection.lPush(KEY_1_BYTES, VALUE_1_BYTES, VALUE_2_BYTES);
 
@@ -1357,7 +1357,7 @@ public class JedisClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void rPushNXShoultNotAddValuesWhenKeyDoesNotExist() {
+	public void rPushNXShouldNotAddValuesWhenKeyDoesNotExist() {
 
 		clusterConnection.rPushX(KEY_1_BYTES, VALUE_1_BYTES);
 
@@ -1365,7 +1365,7 @@ public class JedisClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void rPushShoultAddValuesCorrectly() {
+	public void rPushShouldAddValuesCorrectly() {
 
 		clusterConnection.rPush(KEY_1_BYTES, VALUE_1_BYTES, VALUE_2_BYTES);
 

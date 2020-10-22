@@ -40,6 +40,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.test.condition.EnabledIfLongRunningTest;
 import org.springframework.data.redis.test.extension.parametrized.MethodSource;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
 
@@ -153,6 +154,7 @@ public class PubSubTests<T> {
 	}
 
 	@ParameterizedRedisTest
+	@EnabledIfLongRunningTest
 	void testContainerUnsubscribe() throws Exception {
 		T payload1 = getT();
 		T payload2 = getT();

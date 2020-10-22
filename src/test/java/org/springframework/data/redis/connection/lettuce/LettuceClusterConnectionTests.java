@@ -29,7 +29,7 @@ import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import io.lettuce.core.codec.ByteArrayCodec;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -57,13 +57,12 @@ import org.springframework.data.redis.connection.RedisZSetCommands.Range;
 import org.springframework.data.redis.connection.RedisZSetCommands.Tuple;
 import org.springframework.data.redis.connection.ValueEncoding.RedisValueEncoding;
 import org.springframework.data.redis.connection.jedis.JedisConverters;
-import org.springframework.data.redis.connection.lettuce.extension.LettuceConnectionFactoryExtension;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.test.condition.EnabledOnRedisClusterAvailable;
 import org.springframework.data.redis.test.extension.LettuceExtension;
-import org.springframework.data.redis.test.extension.RedisCluster;
+import org.springframework.data.redis.test.extension.LettuceTestClientResources;
 import org.springframework.data.redis.test.util.HexStringUtils;
 
 /**
@@ -93,13 +92,13 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	private static final GeoLocation<String> PALERMO = new GeoLocation<>("palermo", POINT_PALERMO);
 
 	private static final GeoLocation<byte[]> ARIGENTO_BYTES = new GeoLocation<>(
-			"arigento".getBytes(Charset.forName("UTF-8")),
+			"arigento".getBytes(StandardCharsets.UTF_8),
 			POINT_ARIGENTO);
 	private static final GeoLocation<byte[]> CATANIA_BYTES = new GeoLocation<>(
-			"catania".getBytes(Charset.forName("UTF-8")),
+			"catania".getBytes(StandardCharsets.UTF_8),
 			POINT_CATANIA);
 	private static final GeoLocation<byte[]> PALERMO_BYTES = new GeoLocation<>(
-			"palermo".getBytes(Charset.forName("UTF-8")),
+			"palermo".getBytes(StandardCharsets.UTF_8),
 			POINT_PALERMO);
 
 	private final RedisClusterClient client;
@@ -117,7 +116,7 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 
 	@BeforeEach
 	void setUp() {
-		nativeConnection.getStatefulConnection().async().flushallAsync();
+		nativeConnection.getStatefulConnection().sync().flushallAsync();
 	}
 
 	@AfterAll
@@ -137,6 +136,18 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 			clusterConnection.close();
 			clusterConnection = null;
 		}
+	}
+
+	private static LettuceConnectionFactory createConnectionFactory() {
+		LettucePoolingClientConfiguration clientConfiguration = LettucePoolingClientConfiguration.builder() //
+				.clientResources(LettuceTestClientResources.getSharedClientResources()) //
+				.shutdownTimeout(Duration.ZERO) //
+				.build();
+
+		RedisClusterConfiguration clusterConfiguration = new RedisClusterConfiguration();
+		clusterConfiguration.addClusterNode(ClusterTestVariables.CLUSTER_NODE_1);
+
+		return new LettuceConnectionFactory(clusterConfiguration, clientConfiguration);
 	}
 
 	@Test // DATAREDIS-775
@@ -167,9 +178,6 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 		factory.destroy();
 	}
 
-	private static LettuceConnectionFactory createConnectionFactory() {
-		return LettuceConnectionFactoryExtension.getConnectionFactory(RedisCluster.class);
-	}
 
 	@Test // DATAREDIS-315
 	public void appendShouldAddValueCorrectly() {
@@ -1057,7 +1065,7 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void lPushNXShoultNotAddValuesWhenKeyDoesNotExist() {
+	public void lPushNXShouldNotAddValuesWhenKeyDoesNotExist() {
 
 		clusterConnection.lPushX(KEY_1_BYTES, VALUE_1_BYTES);
 
@@ -1065,7 +1073,7 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void lPushShoultAddValuesCorrectly() {
+	public void lPushShouldAddValuesCorrectly() {
 
 		clusterConnection.lPush(KEY_1_BYTES, VALUE_1_BYTES, VALUE_2_BYTES);
 
@@ -1386,7 +1394,7 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void rPushNXShoultNotAddValuesWhenKeyDoesNotExist() {
+	public void rPushNXShouldNotAddValuesWhenKeyDoesNotExist() {
 
 		clusterConnection.rPushX(KEY_1_BYTES, VALUE_1_BYTES);
 
@@ -1394,7 +1402,7 @@ public class LettuceClusterConnectionTests implements ClusterConnectionTests {
 	}
 
 	@Test // DATAREDIS-315
-	public void rPushShoultAddValuesCorrectly() {
+	public void rPushShouldAddValuesCorrectly() {
 
 		clusterConnection.rPush(KEY_1_BYTES, VALUE_1_BYTES, VALUE_2_BYTES);
 
