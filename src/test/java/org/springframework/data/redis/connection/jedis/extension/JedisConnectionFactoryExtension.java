@@ -15,6 +15,7 @@
  */
 package org.springframework.data.redis.connection.jedis.extension;
 
+import java.io.Closeable;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,33 +59,33 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 
 	private static final Lazy<JedisConnectionFactory> STANDALONE = Lazy.of(() -> {
 
-		JedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.standaloneConfiguration(),
+		ManagedJedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.standaloneConfiguration(),
 				CLIENT_CONFIGURATION);
 
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
 
 	private static final Lazy<JedisConnectionFactory> SENTINEL = Lazy.of(() -> {
 
-		JedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.sentinelConfiguration(),
+		ManagedJedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.sentinelConfiguration(),
 				CLIENT_CONFIGURATION);
 
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
 
 	private static final Lazy<JedisConnectionFactory> CLUSTER = Lazy.of(() -> {
 
-		JedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.clusterConfiguration(),
+		ManagedJedisConnectionFactory factory = new ManagedJedisConnectionFactory(SettingsUtils.clusterConfiguration(),
 				CLIENT_CONFIGURATION);
 
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
@@ -143,6 +144,7 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 	static class ManagedJedisConnectionFactory extends JedisConnectionFactory
 			implements ConnectionFactoryTracker.Managed {
 
+		private volatile boolean mayClose;
 
 		ManagedJedisConnectionFactory(RedisStandaloneConfiguration standaloneConfig,
 				JedisClientConfiguration clientConfig) {
@@ -161,7 +163,11 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 
 		@Override
 		public void destroy() {
-			new Exception().printStackTrace();
+
+			if (!mayClose) {
+				throw new IllegalStateException(
+						"Prematurely attempted to close ManagedJedisConnectionFactory. Shutdown hook didn't run yet which means that the test run isn't finished yet. Please fix the tests so that they don't close this connection factory.");
+			}
 
 			super.destroy();
 		}
@@ -184,6 +190,17 @@ public class JedisConnectionFactoryExtension implements ParameterResolver {
 			}
 
 			return builder.toString();
+		}
+
+		Closeable toCloseable() {
+			return () -> {
+				try {
+					mayClose = true;
+					destroy();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			};
 		}
 	}
 }

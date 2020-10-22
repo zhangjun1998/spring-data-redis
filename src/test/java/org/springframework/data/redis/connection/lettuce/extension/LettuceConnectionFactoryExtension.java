@@ -15,6 +15,7 @@
  */
 package org.springframework.data.redis.connection.lettuce.extension;
 
+import java.io.Closeable;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,10 +62,11 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 		LettuceClientConfiguration configuration = LettucePoolingClientConfiguration.builder()
 				.clientResources(LettuceTestClientResources.getSharedClientResources()).build();
 
-		LettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.standaloneConfiguration(),
+		ManagedLettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(
+				SettingsUtils.standaloneConfiguration(),
 				configuration);
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
@@ -74,10 +76,10 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 		LettuceClientConfiguration configuration = LettucePoolingClientConfiguration.builder()
 				.clientResources(LettuceTestClientResources.getSharedClientResources()).build();
 
-		LettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.sentinelConfiguration(),
+		ManagedLettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.sentinelConfiguration(),
 				configuration);
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
@@ -87,10 +89,10 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 		LettuceClientConfiguration configuration = LettucePoolingClientConfiguration.builder()
 				.clientResources(LettuceTestClientResources.getSharedClientResources()).build();
 
-		LettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.clusterConfiguration(),
+		ManagedLettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.clusterConfiguration(),
 				configuration);
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
@@ -100,10 +102,11 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 		LettuceClientConfiguration configuration = LettuceClientConfiguration.builder()
 				.clientResources(LettuceTestClientResources.getSharedClientResources()).build();
 
-		LettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.standaloneConfiguration(),
+		ManagedLettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(
+				SettingsUtils.standaloneConfiguration(),
 				configuration);
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
@@ -113,10 +116,10 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 		LettuceClientConfiguration configuration = LettuceClientConfiguration.builder()
 				.clientResources(LettuceTestClientResources.getSharedClientResources()).build();
 
-		LettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.sentinelConfiguration(),
+		ManagedLettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.sentinelConfiguration(),
 				configuration);
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
@@ -126,10 +129,10 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 		LettuceClientConfiguration configuration = LettuceClientConfiguration.builder()
 				.clientResources(LettuceTestClientResources.getSharedClientResources()).build();
 
-		LettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.clusterConfiguration(),
+		ManagedLettuceConnectionFactory factory = new ManagedLettuceConnectionFactory(SettingsUtils.clusterConfiguration(),
 				configuration);
 		factory.afterPropertiesSet();
-		ShutdownQueue.register(ShutdownQueue.toCloseable(factory));
+		ShutdownQueue.register(factory.toCloseable());
 
 		return factory;
 	});
@@ -206,6 +209,7 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 	static class ManagedLettuceConnectionFactory extends LettuceConnectionFactory
 			implements ConnectionFactoryTracker.Managed {
 
+		private volatile boolean mayClose;
 
 		ManagedLettuceConnectionFactory(RedisStandaloneConfiguration standaloneConfig,
 				LettuceClientConfiguration clientConfig) {
@@ -224,7 +228,12 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 
 		@Override
 		public void destroy() {
-			new Exception().printStackTrace();
+
+			if (!mayClose) {
+				throw new IllegalStateException(
+						"Prematurely attempted to close ManagedLettuceConnectionFactory. Shutdown hook didn't run yet which means that the test run isn't finished yet. Please fix the tests so that they don't close this connection factory.");
+			}
+
 			super.destroy();
 		}
 
@@ -246,6 +255,17 @@ public class LettuceConnectionFactoryExtension implements ParameterResolver {
 			}
 
 			return builder.toString();
+		}
+
+		Closeable toCloseable() {
+			return () -> {
+				try {
+					mayClose = true;
+					destroy();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			};
 		}
 	}
 }
