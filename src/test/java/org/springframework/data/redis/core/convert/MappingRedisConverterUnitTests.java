@@ -1874,8 +1874,6 @@ class MappingRedisConverterUnitTests {
 		List<Object> source =  Arrays.asList("Hello", "stream", "message", 100L);
 		RedisTestData target = write(source);
 
-		System.out.println(target.getBucket().toString());
-
 		assertThat(target).containsEntry("[0]", "Hello") //
 				.containsEntry("[1]", "stream") //
 				.containsEntry("[2]", "message") //

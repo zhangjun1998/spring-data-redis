@@ -39,11 +39,11 @@ import org.springframework.data.redis.serializer.OxmSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.test.XstreamOxmSerializerSingleton;
 import org.springframework.data.redis.test.condition.RedisDetector;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.extension.RedisStanalone;
 import org.springframework.lang.Nullable;
-import org.springframework.oxm.xstream.XStreamMarshaller;
 
 /**
  * Parameters for testing implementations of {@link ReactiveRedisTemplate}
@@ -61,14 +61,6 @@ abstract public class ReactiveOperationsTestParams {
 		ObjectFactory<Double> doubleFactory = new DoubleObjectFactory();
 		ObjectFactory<ByteBuffer> rawFactory = new ByteBufferObjectFactory();
 		ObjectFactory<Person> personFactory = new PersonObjectFactory();
-
-		// XStream serializer
-		XStreamMarshaller xstream = new XStreamMarshaller();
-		try {
-			xstream.afterPropertiesSet();
-		} catch (Exception ex) {
-			throw new RuntimeException("Cannot init XStream", ex);
-		}
 
 		LettuceConnectionFactory lettuceConnectionFactory = LettuceConnectionFactoryExtension
 				.getConnectionFactory(RedisStanalone.class);
@@ -97,7 +89,7 @@ abstract public class ReactiveOperationsTestParams {
 		ReactiveRedisTemplate<String, Person> personTemplate = new ReactiveRedisTemplate(lettuceConnectionFactory,
 				RedisSerializationContext.fromSerializer(jdkSerializationRedisSerializer));
 
-		OxmSerializer oxmSerializer = new OxmSerializer(xstream, xstream);
+		OxmSerializer oxmSerializer = XstreamOxmSerializerSingleton.getInstance();
 		ReactiveRedisTemplate<String, String> xstreamStringTemplate = new ReactiveRedisTemplate(lettuceConnectionFactory,
 				RedisSerializationContext.fromSerializer(oxmSerializer));
 

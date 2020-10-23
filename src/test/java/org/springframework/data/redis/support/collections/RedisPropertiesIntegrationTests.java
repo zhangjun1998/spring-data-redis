@@ -40,9 +40,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.OxmSerializer;
+import org.springframework.data.redis.test.XstreamOxmSerializerSingleton;
 import org.springframework.data.redis.test.extension.RedisStanalone;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.oxm.xstream.XStreamMarshaller;
 
 /**
  * @author Costin Leau
@@ -194,14 +194,7 @@ public class RedisPropertiesIntegrationTests extends RedisMapIntegrationTests {
 	// DATAREDIS-241
 	public static Collection<Object[]> testParams() {
 
-		// XStream serializer
-		XStreamMarshaller xstream = new XStreamMarshaller();
-		try {
-			xstream.afterPropertiesSet();
-		} catch (Exception ex) {
-			throw new RuntimeException("Cannot init XStream", ex);
-		}
-		OxmSerializer serializer = new OxmSerializer(xstream, xstream);
+		OxmSerializer serializer = XstreamOxmSerializerSingleton.getInstance();
 		Jackson2JsonRedisSerializer<Person> jackson2JsonSerializer = new Jackson2JsonRedisSerializer<>(Person.class);
 		Jackson2JsonRedisSerializer<String> jackson2JsonStringSerializer = new Jackson2JsonRedisSerializer<>(
 				String.class);

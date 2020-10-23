@@ -33,11 +33,11 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.OxmSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
+import org.springframework.data.redis.test.XstreamOxmSerializerSingleton;
 import org.springframework.data.redis.test.condition.RedisDetector;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.extension.RedisStanalone;
 import org.springframework.lang.Nullable;
-import org.springframework.oxm.xstream.XStreamMarshaller;
 
 /**
  * @author Christoph Strobl
@@ -87,11 +87,7 @@ class CacheTestParams {
 
 	static Collection<Object[]> connectionFactoriesAndSerializers() {
 
-		// XStream serializer
-		XStreamMarshaller xstream = new XStreamMarshaller();
-		xstream.afterPropertiesSet();
-
-		OxmSerializer oxmSerializer = new OxmSerializer(xstream, xstream);
+		OxmSerializer oxmSerializer = XstreamOxmSerializerSingleton.getInstance();
 		GenericJackson2JsonRedisSerializer jackson2Serializer = new GenericJackson2JsonRedisSerializer();
 		JdkSerializationRedisSerializer jdkSerializer = new JdkSerializationRedisSerializer();
 

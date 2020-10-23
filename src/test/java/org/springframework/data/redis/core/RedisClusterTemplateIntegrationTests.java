@@ -38,10 +38,10 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.OxmSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.test.XstreamOxmSerializerSingleton;
 import org.springframework.data.redis.test.condition.EnabledOnRedisClusterAvailable;
 import org.springframework.data.redis.test.extension.RedisCluster;
 import org.springframework.data.redis.test.extension.parametrized.ParameterizedRedisTest;
-import org.springframework.oxm.xstream.XStreamMarshaller;
 
 /**
  * @author Christoph Strobl
@@ -149,15 +149,8 @@ public class RedisClusterTemplateIntegrationTests<K, V> extends RedisTemplateInt
 		ObjectFactory<byte[]> rawFactory = new RawObjectFactory();
 		ObjectFactory<Person> personFactory = new PersonObjectFactory();
 
-		// XStream serializer
-		XStreamMarshaller xstream = new XStreamMarshaller();
-		try {
-			xstream.afterPropertiesSet();
-		} catch (Exception ex) {
-			throw new RuntimeException("Cannot init XStream", ex);
-		}
 
-		OxmSerializer serializer = new OxmSerializer(xstream, xstream);
+		OxmSerializer serializer = XstreamOxmSerializerSingleton.getInstance();
 		Jackson2JsonRedisSerializer<Person> jackson2JsonSerializer = new Jackson2JsonRedisSerializer<>(Person.class);
 
 		// JEDIS
