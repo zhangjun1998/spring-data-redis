@@ -281,6 +281,7 @@
 						<include>**/*Tests.java</include>
 						<include>**/*Test.java</include>
 					</includes>
+					<reportFormat>plain</reportFormat>
 				</configuration>
 			</plugin>
 

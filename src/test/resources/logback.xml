@@ -8,6 +8,7 @@
     </appender>
 
     <logger name="org.springframework.data" level="error" />
+    <logger name="io.lettuce.core" level="debug"/>
 
     <root level="warn">
         <appender-ref ref="console" />
